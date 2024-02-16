@@ -10,15 +10,15 @@ form {text-align: center;}
 
 <h1>Bine Login</h1>
 
-<form method="get" action="/">
- <label for="txt_uid">Username:</label><br>
- <input type='text' id="txt_uid" name="uid"></input><br>
-
- <label for="txt_pwd">Password:</label><br>
- <input type='text' id="txt_pwd" name="pwd"></input><br>
-
- <input type="Submit" value="Sign in">
- <input type="Submit" value="Sign up">
+<form method="POST" action="http://localhost:10000/signin">
+    <label for="txt_uid">Username:</label><br>
+    <input type='text' id="txt_uid" name="uid"></input><br>
+    
+    <label for="txt_pwd">Password:</label><br>
+    <input type='text' id="txt_pwd" name="pwd"></input><br>
+    
+    <input type="Submit" value="Sign in">
+    <input type="Submit" value="Sign up" formaction="http://localhost:10000/signup">
 </form>
 
 </body>

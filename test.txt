@@ -1,3 +1,7 @@
 uid1 pwd1
 uid2 pwd2
 uid3 pwd3
+evil_thing man
+thing man
+hi man
+thing ma
