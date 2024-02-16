@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
-  res.send(`you clicked sign up and your uid is ${req.body.uid}`);
+  res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
 
   fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
     if (err) throw err;
@@ -23,7 +23,6 @@ app.post('/signup', (req,res) => {
 
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
-  //res.send(`you clicked sign in and your uid is ${req.body.uid}`);
 
   var lineReader = require('readline').createInterface({
     input:require('fs').createReadStream('test.txt')
