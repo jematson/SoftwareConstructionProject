@@ -14,6 +14,7 @@ function uid_good(uid) {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
   //res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
@@ -23,13 +24,14 @@ app.post('/signup', (req,res) => {
     fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
       if (err) throw err;
       console.log('Saved new uid and pwd');
+      
     });
   } else {
-    //alert("uid wrong");
-  } 
-    
+      
+  }   
 });
 
+// Sign In
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
@@ -43,24 +45,12 @@ app.post('/signin', (req, res) => {
   lineReader.on('close', function() {
     console.log('file closed');
   });
-  /*
-  void (async () => {
-    const rl = readline.createInterface({
-      input: fs.createReadStream('test.txt'),
-      crlfDelay: Infinity,
-    });
+});
 
-    rl.on('line', (line) => {
-      console.log(line);
-      if(`${req.body.uid} ${req.body.pwd}` == line)
-        res.send('nice job, you in');
-      else
-        res.send('wow, you kinda suck');
-    });
-
-    await new Promise((res) => rl.once('close', res));
-  })();
-  */
+// Log Out
+app.post('/logout', (req, res) => {
+  console.log(`User logged out`);
+  res.sendFile(__dirname + '/page.html');
 });
 
 const port = 10000;
@@ -70,31 +60,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port${port}`);
 });
-
-
-
-
-
-
-/*
-http.createServer(function (req, res) {
-
-  fs.readFile('test.txt', 'utf8', (err, data) => {
-   if (err) {
-    console.error(err);
-    return;
-   }
-   console.log(data);
-  });
-
-  fs.readFile('page.html', function(err, data) {
-   currentURL = url.parse(req.url,true);
-   console.log(currentURL);			
-   res.writeHead(200, {'Content-Type': 'text/html'});
-   res.write(data);
-   return res.end();
-  });
-	
-}).listen(8080);
-
-*/
