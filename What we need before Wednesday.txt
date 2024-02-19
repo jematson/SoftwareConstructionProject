@@ -1,6 +1,7 @@
 Still need
 -Lock out
 -Discipline signup criteria
+	-Need some text/instruction for user's username criteria
 -Logout button - DONE
 -Fabricate some user stories
 

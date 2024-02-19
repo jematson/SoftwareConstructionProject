@@ -12,10 +12,10 @@ form {text-align: center;}
 
 <form method="POST" action="http://localhost:10000/signin">
     <label for="txt_uid">Username:</label><br>
-    <input type='text' pattern="[a-z0-9]*_[a-z0-9]*" minlength="4" id="txt_uid" name="uid"></input><br>
+    <input type='text' pattern="[a-z0-9]*_[a-z0-9]*" minlength="4" id="txt_uid" name="uid" title="Username must contain only lowercase letters, numbers, and at least one underscore."></input><br>
     
     <label for="txt_pwd">Password:</label><br>
-    <input type='password' id="txt_pwd" name="pwd"></input><br>
+    <input type='password' pattern="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_]).{8,}" title="Password must be at least 8 characters long and must contain at least one of each of the following: lowercase letter, uppercase letter, special character(!@#$%^&*_), and number." id="txt_pwd" name="pwd"></input><br>
     
     <input type="Submit" value="Sign in">
     <input type="Submit" value="Sign up" formaction="http://localhost:10000/signup">
