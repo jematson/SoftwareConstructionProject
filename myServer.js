@@ -8,16 +8,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+const data = fs.readFileSync('user.json');
+const jsonData = JSON.parse(data);
+
 app.set('view engine', 'ejs');
 
 const messageCenter = {
   default: ' ',
+  signUpError: 'Error: user already exists',
+  signUpSuccess: 'Sign up successful!',
   signInError1: 'Error: user does not exist',
   signInError2: 'Error: username and password do not match',
-}
-
-function uid_good(uid) {
-  return (uid.length >= 4);
 }
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,23 +29,25 @@ app.post('/signup', (req,res) => {
   //res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
   res.redirect('/');
 
-  if(uid_good(`${req.body.uid}`)) {
-    fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
-      if (err) throw err;
-      console.log('Saved new uid and pwd');
-      
-    });
-  } else {
-    app.get("/", (req, res) => { 
-      //res.render("home", { messageCenter: "Hello World!" }) 
-    })
-  }   
+  /*
+  jsonData.users.push({
+    uid: '${req.body.uid}',
+    pwd: '${req.body.pwd}',
+  })
+  */
+  
+  fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
+    if (err) throw err;
+    console.log('Saved new uid and pwd');   
+  });
+  
+  
 });
 
 // Sign In
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
-
+  
   var lineReader = require('readline').createInterface({
     input:require('fs').createReadStream('test.txt')
   });
@@ -58,6 +61,7 @@ app.post('/signin', (req, res) => {
   lineReader.on('close', function() {
     console.log('file closed');
   });
+  
 });
 
 // Log Out
