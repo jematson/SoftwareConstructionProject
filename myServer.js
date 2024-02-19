@@ -8,6 +8,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+function uid_good(uid) {
+  return (uid.length >= 4);
+}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -15,10 +18,15 @@ app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
   res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
 
-  fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
-    if (err) throw err;
-    console.log('Saved new uid and pwd');
-  });
+  if(uid_good(`${req.body.uid}`)) {
+    fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
+      if (err) throw err;
+      console.log('Saved new uid and pwd');
+    });
+  } else {
+    alert("uid wrong");
+  } 
+    
 });
 
 app.post('/signin', (req, res) => {
