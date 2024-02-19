@@ -8,6 +8,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+app.set('view engine', 'ejs');
+
+const messageCenter = {
+  default: 'test',
+  signInError: 'username and password do not match',
+}
+
 function uid_good(uid) {
   return (uid.length >= 4);
 }
@@ -27,7 +34,9 @@ app.post('/signup', (req,res) => {
       
     });
   } else {
-      
+    app.get("/", (req, res) => { 
+      //res.render("home", { messageCenter: "Hello World!" }) 
+    })
   }   
 });
 
@@ -40,7 +49,10 @@ app.post('/signin', (req, res) => {
   });
   lineReader.on('line', function (line) {
     if(line == `${req.body.uid} ${req.body.pwd}`)
-      res.sendFile(__dirname + '/success.html');
+      //res.sendFile(__dirname + '/success.html');
+      res.render('pages/page', {
+        messageCenter: messageCenter
+      });
   });
   lineReader.on('close', function() {
     console.log('file closed');
@@ -48,14 +60,20 @@ app.post('/signin', (req, res) => {
 });
 
 // Log Out
-app.post('/logout', (req, res) => {
+app.post('/home', (req, res) => {
   console.log(`User logged out`);
-  res.sendFile(__dirname + '/page.html');
+  //res.sendFile(__dirname + '/pages/page');
+  res.render('pages/page', {
+    messageCenter: messageCenter.default
+  });
 });
 
 const port = 10000;
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/page.html');
+  //res.sendFile(__dirname + '/pages/page');
+  res.render('pages/page', {
+    messageCenter: messageCenter.default
+  });
 });
 app.listen(port, () => {
   console.log(`Server running on port${port}`);
