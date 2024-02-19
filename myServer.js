@@ -11,8 +11,9 @@ const app = express();
 app.set('view engine', 'ejs');
 
 const messageCenter = {
-  default: 'test',
-  signInError: 'username and password do not match',
+  default: ' ',
+  signInError1: 'Error: user does not exist',
+  signInError2: 'Error: username and password do not match',
 }
 
 function uid_good(uid) {
