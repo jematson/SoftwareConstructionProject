@@ -12,7 +12,7 @@ form {text-align: center;}
 
 <form method="POST" action="http://localhost:10000/signin">
     <label for="txt_uid">Username:</label><br>
-    <input type='text' id="txt_uid" name="uid"></input><br>
+    <input type='text' pattern="[a-z0-9!@#$%^&*\-]*_[a-z0-9!@#$%^&*\-_]*" id="txt_uid" name="uid"></input><br>
     
     <label for="txt_pwd">Password:</label><br>
     <input type='password' id="txt_pwd" name="pwd"></input><br>
