@@ -16,7 +16,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
-  res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
+  //res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
+  res.redirect('/');
 
   if(uid_good(`${req.body.uid}`)) {
     fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
@@ -24,7 +25,7 @@ app.post('/signup', (req,res) => {
       console.log('Saved new uid and pwd');
     });
   } else {
-    alert("uid wrong");
+    //alert("uid wrong");
   } 
     
 });
