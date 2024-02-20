@@ -70,6 +70,9 @@ app.post('/signin', (req, res) => {
       signInCondition = 2;
       jsonData.users[i].attempts = 5;
       fs.writeFileSync('users.json', JSON.stringify(jsonData));
+    } 
+    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == true) {
+      signInCondition = 4;
     }
     // Condition 1: Username exists, pwd wrong
     else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {

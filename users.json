@@ -1,1 +1,1 @@
-{"users":[{"uid":"thing_man","pwd":"Password1!","attempts":4,"banned":false},{"uid":"user_person","pwd":"Password2!","attempts":5,"banned":true},{"uid":"new_user","pwd":"Things77*","attempts":5,"banned":false}]}
+{"users":[{"uid":"thing_man","pwd":"Password1!","attempts":5,"banned":false},{"uid":"user_person","pwd":"Password2!","attempts":5,"banned":true},{"uid":"new_user","pwd":"Things77*","attempts":5,"banned":false}]}
