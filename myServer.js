@@ -78,6 +78,9 @@ app.post('/signin', (req, res) => {
     else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
       signInCondition = 1;
       jsonData.users[i].attempts -= 1;
+      if(jsonData.users[i].attempts == 0) {
+        jsonData.users[i].banned = true;
+      }
       fs.writeFileSync('users.json', JSON.stringify(jsonData));
     }
   }
