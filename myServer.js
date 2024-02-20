@@ -54,31 +54,20 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  var signInCondition = 0;
-  for(let i=1; i < jsonData.users.length; ++i) {
+  var signInCondition = false;
+  for(let i=0; i < jsonData.users.length; ++i) {
+    console.log(jsonData.users[i]);
     // Condition 2: Correct sign in
-    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.user[i].pwd == `${req.body.pwd}`) {
-      signInCondition = 2;
-    }
-    // Condition 1: Username exists, pwd wrong
-    else if(jsonData.users[i].uid == `${req.body.uid}`) {
-      signInCondition = 1;
+    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.users[i].pwd == `${req.body.pwd}`) {
+      signInCondition = true;
     }
   }
 
-  if(signInCondition == 2) {
+  if(signInCondition) {
     res.render('pages/success');
-  } else if (signInCondition == 1) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError2
-    });
-  } else if (signInCondition == 0) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError1
-    });
   } else {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError3
+      messageCenter: messageCenter.signInError2
     });
   }
 });

@@ -1,8 +1,1 @@
-{
-    "users":[
-        {"uid":"thing_man","pwd":"Password1!"},
-        {"uid":"user_name","pwd":"Password55*"},
-        {"uid":"new_user","pwd":"Things77*"},
-        {"uid":"person_","pwd":"newPass55*"}
-    ]
-}
+{"users":[{"uid":"thing_man","pwd":"Password1!"},{"uid":"user_name","pwd":"Password55*"},{"uid":"new_user","pwd":"Things77*"},{"uid":"person_","pwd":"newPass55*"},{"uid":"new_person","pwd":"Happy44*"}]}
