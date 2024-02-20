@@ -8,8 +8,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-const data = fs.readFileSync('user.json');
+const data = fs.readFileSync('users.json');
 const jsonData = JSON.parse(data);
+console.log(jsonData);
 
 app.set('view engine', 'ejs');
 
@@ -26,28 +27,51 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
-  //res.send(`You clicked sign up. Your username is: ${req.body.uid}`);
-  res.redirect('/');
 
-  /*
+  //Send username and password to json file
   jsonData.users.push({
-    uid: '${req.body.uid}',
-    pwd: '${req.body.pwd}',
-  })
-  */
+    uid: `${req.body.uid}`,
+    pwd: `${req.body.pwd}`,
+  });
+  fs.writeFileSync('users.json', JSON.stringify(jsonData));
+
+  // Display successful sign up message
+  res.render('pages/page', {
+    messageCenter: messageCenter.signUpSuccess
+  });
   
+  /* Sending username and password to text file
   fs.appendFile('test.txt', `${req.body.uid} ${req.body.pwd}\n`, function (err) {
     if (err) throw err;
     console.log('Saved new uid and pwd');   
   });
-  
+  */
   
 });
 
 // Sign In
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
-  
+
+  var success = false;
+
+//JSON.stringify(user.uid) == `${req.body.uid}` && JSON.stringify(user.pwd) == `${req.body.pwd}`
+
+  for(const user in jsonData) {
+    console.log(user);
+    if(JSON.stringify(user.uid) === `${req.body.uid}`) {
+      success = true;
+    }
+  }
+  if(success) {
+    res.render('pages/success');
+  } else {
+    res.render('pages/page', {
+      messageCenter: messageCenter.signInError1
+    });
+  }
+
+  /*
   var lineReader = require('readline').createInterface({
     input:require('fs').createReadStream('test.txt')
   });
@@ -61,6 +85,7 @@ app.post('/signin', (req, res) => {
   lineReader.on('close', function() {
     console.log('file closed');
   });
+  */
   
 });
 

@@ -1,12 +1,7 @@
-{
-    "users": [
-        {
-            "uid": "thing_man",
-            "pwd": "Password1!"
-        },
-        {
-            "uid": "user2",
-            "pwd": "Password2!"
-        }
-    ]
-}
+[
+        {"uid":"thing_man","pwd":"Password1!"},
+        {"uid":"user2","pwd":"Password2!"},
+        {"uid":"${req.body.uid}","pwd":"${req.body.pwd}"},
+        {"uid":"user_name","pwd":"Password55*"},
+        {"uid":"new_user", "pwd":"Things77*"}
+]
