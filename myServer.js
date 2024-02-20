@@ -14,9 +14,10 @@ const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
   signUpSuccess: 'Sign up successful!',
-  signInError1: 'Error: user does not exist',
-  signInError2: 'Error: username and password do not match',
-  signInError3: 'Error: What just happened?'
+  signInError0: 'Error: user does not exist',
+  signInError1: 'Error: username and password do not match',
+  signInError3: 'Error: What just happened?',
+  signInError4: 'Error: user banned'
 }
 
 // Sign Up
@@ -56,17 +57,23 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
+  // Sign in Conditions
+  // 0 = user does not exist
+  // 1 = username and password do not match
+  // 2 = username and password match, success
+
   let signInCondition = 0;
   for(let i=0; i < jsonData.users.length; ++i) {
     // Condition 2: Correct sign in
-    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`)) {
+    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == false) {
       signInCondition = 2;
-      //break;
+    }
+    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == true) {
+      signInCondition = 4;
     }
     // Condition 1: Username exists, pwd wrong
     else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
       signInCondition = 1;
-      //break;
     }
   }
 
@@ -74,11 +81,15 @@ app.post('/signin', (req, res) => {
     res.render('pages/success');
   } else if (signInCondition ==1){
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError2
+      messageCenter: messageCenter.signInError1
     });
   } else if (signInCondition == 0) {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError1
+      messageCenter: messageCenter.signInError0
+    });
+  } else if (signInCondition == 4) {
+    res.render('pages/page', {
+      messageCenter: messageCenter.signInError4
     });
   } else {
     res.render('pages/page', {
