@@ -36,6 +36,8 @@ app.post('/signup', (req,res) => {
     jsonData.users.push({
       uid: `${req.body.uid}`,
       pwd: `${req.body.pwd}`,
+      attempts: 5,
+      banned: false
     });
     fs.writeFileSync('users.json', JSON.stringify(jsonData));
     // Display successful sign up message

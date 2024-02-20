@@ -1,12 +1,1 @@
-{
-    "users": [
-        {
-            "uid": "thing_man",
-            "pwd": "Password1!"
-        },
-        {
-            "uid": "user2",
-            "pwd": "Password2!"
-        }
-    ]
-}
+{"users":[{"uid":"thing_man","pwd":"Password1!","attempts":5,"banned":false},{"uid":"user_person","pwd":"Password2!","attempts":5,"banned":false},{"uid":"new_user","pwd":"Things77*","attempts":5,"banned":false}]}
