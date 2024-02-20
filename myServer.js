@@ -55,14 +55,13 @@ app.post('/signin', (req, res) => {
 
   var success = false;
 
-//JSON.stringify(user.uid) == `${req.body.uid}` && JSON.stringify(user.pwd) == `${req.body.pwd}`
-
-  for(const user in jsonData) {
-    console.log(user);
-    if(JSON.stringify(user.uid) === `${req.body.uid}`) {
-      success = true;
+  for(let i=0; i < jsonData.users.length; ++i) {
+    console.log(jsonData.users[i].uid);
+    if(jsonData.users[i].uid == `${req.body.uid}`) {
+      success=true;
     }
   }
+
   if(success) {
     res.render('pages/success');
   } else {
