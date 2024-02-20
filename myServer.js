@@ -55,7 +55,7 @@ app.post('/signin', (req, res) => {
 
   var success = false;
   for(let i=0; i < jsonData.users.length; ++i) {
-    if(jsonData.users[i].uid == `${req.body.uid}`) {
+    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.user[1].pwd == `${req.body.pwd}`) {
       success=true;
     }
   }
