@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "uid": "thing_man",
+            "pwd": "Password1!"
+        },
+        {
+            "uid": "user2",
+            "pwd": "Password2!"
+        }
+    ]
+}
