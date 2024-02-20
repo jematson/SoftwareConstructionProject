@@ -1,1 +1,8 @@
-{"users":[{"uid":"thing_man","pwd":"Password1!","attempts":0,"banned":true},{"uid":"user_person","pwd":"Password2!","attempts":5,"banned":true},{"uid":"new_user","pwd":"Things77*","attempts":-1,"banned":true},{"uid":"bo_man","pwd":"Happy44*","attempts":0,"banned":true}]}
+{
+    "users":[
+        {"uid":"user_1","pwd":"Password1!","attempts":5,"banned":false},
+        {"uid":"user_2","pwd":"Password2@","attempts":5,"banned":false},
+        {"uid":"user_3","pwd":"Password3#","attempts":5,"banned":false},
+        {"uid":"thing_man","pwd":"Happy44*","attempts":5,"banned":false}
+    ]
+}
