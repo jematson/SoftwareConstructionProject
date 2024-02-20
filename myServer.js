@@ -54,15 +54,17 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  var signInCondition = 0;
+  let signInCondition = 0;
   for(let i=1; i < jsonData.users.length; ++i) {
     // Condition 2: Correct sign in
-    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.user[i].pwd == `${req.body.pwd}`) {
+    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`)) {
       signInCondition = 2;
+      //break;
     }
     // Condition 1: Username exists, pwd wrong
-    else if(jsonData.users[i].uid == `${req.body.uid}`) {
+    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
       signInCondition = 1;
+      //break;
     }
   }
 
