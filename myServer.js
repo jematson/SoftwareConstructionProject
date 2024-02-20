@@ -20,6 +20,11 @@ const messageCenter = {
   signInError4: 'Error: user banned'
 }
 
+const attemptsDisplay = {
+  default: ' ',
+  attempts: 'Attempts remaining: ',
+}
+
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
@@ -43,12 +48,14 @@ app.post('/signup', (req,res) => {
     fs.writeFileSync('users.json', JSON.stringify(jsonData));
     // Display successful sign up message
     res.render('pages/page', {
-      messageCenter: messageCenter.signUpSuccess
+      messageCenter: messageCenter.signUpSuccess,
+      attemptsDisplay: attemptsDisplay.default
     });
   } else {
     // Display sign up error
     res.render('pages/page', {
-      messageCenter: messageCenter.signUpError
+      messageCenter: messageCenter.signUpError,
+      attemptsDisplay: attemptsDisplay.default
     });
   }
 });
@@ -64,6 +71,7 @@ app.post('/signin', (req, res) => {
   // 4 = user banned
 
   let signInCondition = 0;
+  var currUser = -1;
   for(let i=0; i < jsonData.users.length; ++i) {
     // Condition 2: Correct sign in
     if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == false) {
@@ -77,7 +85,11 @@ app.post('/signin', (req, res) => {
     // Condition 1: Username exists, pwd wrong
     else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
       signInCondition = 1;
+      currUser = i;
       jsonData.users[i].attempts -= 1;
+      if(jsonData.users[i].attempts < 0){
+        jsonData.users[i].attempts = 0;
+      }
       if(jsonData.users[i].attempts == 0) {
         jsonData.users[i].banned = true;
       }
@@ -89,19 +101,23 @@ app.post('/signin', (req, res) => {
     res.render('pages/success');
   } else if (signInCondition ==1){
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError1
+      messageCenter: messageCenter.signInError1,
+      attemptsDisplay: attemptsDisplay.attempts + jsonData.users[currUser].attempts
     });
   } else if (signInCondition == 0) {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError0
+      messageCenter: messageCenter.signInError0,
+      attemptsDisplay: attemptsDisplay.default
     });
   } else if (signInCondition == 4) {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError4
+      messageCenter: messageCenter.signInError4,
+      attemptsDisplay: attemptsDisplay.default
     });
   } else {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError3
+      messageCenter: messageCenter.signInError3,
+      attemptsDisplay: attemptsDisplay.default
     });
   }
 });
@@ -110,14 +126,16 @@ app.post('/signin', (req, res) => {
 app.post('/', (req, res) => {
   console.log(`User logged out`);
   res.render('pages/page', {
-    messageCenter: messageCenter.default
+    messageCenter: messageCenter.default,
+    attemptsDisplay: attemptsDisplay.default
   });
 });
 
 const port = 10000;
 app.get('/', (req, res) => {
   res.render('pages/page', {
-    messageCenter: messageCenter.default
+    messageCenter: messageCenter.default,
+    attemptsDisplay: attemptsDisplay.default
   });
 });
 app.listen(port, () => {
