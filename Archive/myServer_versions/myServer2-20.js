@@ -14,10 +14,9 @@ const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
   signUpSuccess: 'Sign up successful!',
-  signInError0: 'Error: user does not exist',
-  signInError1: 'Error: username and password do not match',
-  signInError3: 'Error: What just happened?',
-  signInError4: 'Error: user banned'
+  signInError1: 'Error: user does not exist',
+  signInError2: 'Error: username and password do not match',
+  signInError3: 'Error: What just happened?'
 }
 
 // Sign Up
@@ -37,8 +36,6 @@ app.post('/signup', (req,res) => {
     jsonData.users.push({
       uid: `${req.body.uid}`,
       pwd: `${req.body.pwd}`,
-      attempts: 5,
-      banned: false
     });
     fs.writeFileSync('users.json', JSON.stringify(jsonData));
     // Display successful sign up message
@@ -57,42 +54,29 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  // Sign in Conditions
-  // 0 = user does not exist
-  // 1 = username and password do not match
-  // 2 = username and password match, success
-  // 4 = user banned
-
   let signInCondition = 0;
-  for(let i=0; i < jsonData.users.length; ++i) {
+  for(let i=1; i < jsonData.users.length; ++i) {
     // Condition 2: Correct sign in
-    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == false) {
+    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`)) {
       signInCondition = 2;
-      jsonData.users[i].attempts = 5;
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
+      //break;
     }
     // Condition 1: Username exists, pwd wrong
     else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
       signInCondition = 1;
-      jsonData.users[i].attempts -= 1;
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
-      console.log(jsonData.users[i].attempts);
+      //break;
     }
   }
 
   if(signInCondition == 2) {
     res.render('pages/success');
-  } else if (signInCondition ==1){
+  } else if (signInCondition == 1) {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError1
+      messageCenter: messageCenter.signInError2
     });
   } else if (signInCondition == 0) {
     res.render('pages/page', {
-      messageCenter: messageCenter.signInError0
-    });
-  } else if (signInCondition == 4) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError4
+      messageCenter: messageCenter.signInError1
     });
   } else {
     res.render('pages/page', {
