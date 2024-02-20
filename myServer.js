@@ -99,11 +99,19 @@ app.post('/signin', (req, res) => {
 
   if(signInCondition == 2) {
     res.render('pages/success');
-  } else if (signInCondition ==1){
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError1,
-      attemptsDisplay: attemptsDisplay.attempts + jsonData.users[currUser].attempts
-    });
+  } else if (signInCondition == 1){
+    if(jsonData.users[currUser].attempts == 0) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError4,
+        attemptsDisplay: attemptsDisplay.default
+      });
+    }
+    else {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError1,
+        attemptsDisplay: attemptsDisplay.attempts + jsonData.users[currUser].attempts
+      });
+    }
   } else if (signInCondition == 0) {
     res.render('pages/page', {
       messageCenter: messageCenter.signInError0,
