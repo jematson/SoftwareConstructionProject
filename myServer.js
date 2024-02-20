@@ -16,6 +16,7 @@ const messageCenter = {
   signUpSuccess: 'Sign up successful!',
   signInError1: 'Error: user does not exist',
   signInError2: 'Error: username and password do not match',
+  signInError3: 'Error: What just happened?'
 }
 
 // Sign Up
@@ -53,18 +54,31 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  var success = false;
-  for(let i=0; i < jsonData.users.length; ++i) {
-    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.user[1].pwd == `${req.body.pwd}`) {
-      success=true;
+  var signInCondition = 0;
+  for(let i=1; i < jsonData.users.length; ++i) {
+    // Condition 2: Correct sign in
+    if(jsonData.users[i].uid == `${req.body.uid}` && jsonData.user[i].pwd == `${req.body.pwd}`) {
+      signInCondition = 2;
+    }
+    // Condition 1: Username exists, pwd wrong
+    else if(jsonData.users[i].uid == `${req.body.uid}`) {
+      signInCondition = 1;
     }
   }
 
-  if(success) {
+  if(signInCondition == 2) {
     res.render('pages/success');
-  } else {
+  } else if (signInCondition == 1) {
+    res.render('pages/page', {
+      messageCenter: messageCenter.signInError2
+    });
+  } else if (signInCondition == 0) {
     res.render('pages/page', {
       messageCenter: messageCenter.signInError1
+    });
+  } else {
+    res.render('pages/page', {
+      messageCenter: messageCenter.signInError3
     });
   }
 });
