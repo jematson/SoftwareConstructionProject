@@ -8,6 +8,7 @@ const jsonData = JSON.parse(data);
 console.log(jsonData);
 
 app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const messageCenter = {
   default: ' ',
@@ -17,12 +18,11 @@ const messageCenter = {
   signInError2: 'Error: username and password do not match',
 }
 
-app.use(bodyParser.urlencoded({ extended: true }));
-
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
 
+  // Check if username is already taken
   var taken = false;
   for(let i=0; i < jsonData.users.length; ++i) {
     console.log(jsonData.users[i].uid);
@@ -30,7 +30,7 @@ app.post('/signup', (req,res) => {
       taken=true;
     }
   }
-  //Send username and password to json file
+  // If username free, send username and password to json file
   if(taken == false) {
     jsonData.users.push({
       uid: `${req.body.uid}`,
@@ -42,6 +42,7 @@ app.post('/signup', (req,res) => {
       messageCenter: messageCenter.signUpSuccess
     });
   } else {
+    // Display sign up error
     res.render('pages/page', {
       messageCenter: messageCenter.signUpError
     });
@@ -53,9 +54,7 @@ app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
   var success = false;
-
   for(let i=0; i < jsonData.users.length; ++i) {
-    console.log(jsonData.users[i].uid);
     if(jsonData.users[i].uid == `${req.body.uid}`) {
       success=true;
     }
@@ -71,7 +70,7 @@ app.post('/signin', (req, res) => {
 });
 
 // Log Out
-app.post('/home', (req, res) => {
+app.post('/', (req, res) => {
   console.log(`User logged out`);
   res.render('pages/page', {
     messageCenter: messageCenter.default
