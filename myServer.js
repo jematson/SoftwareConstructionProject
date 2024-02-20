@@ -61,6 +61,7 @@ app.post('/signin', (req, res) => {
   // 0 = user does not exist
   // 1 = username and password do not match
   // 2 = username and password match, success
+  // 4 = user banned
 
   let signInCondition = 0;
   for(let i=0; i < jsonData.users.length; ++i) {
