@@ -76,7 +76,6 @@ app.post('/signin', (req, res) => {
       signInCondition = 1;
       jsonData.users[i].attempts -= 1;
       fs.writeFileSync('users.json', JSON.stringify(jsonData));
-      console.log(jsonData.users[i].attempts);
     }
   }
 
