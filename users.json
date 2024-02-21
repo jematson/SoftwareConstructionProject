@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 {"users":[{"uid":"user_1","pwd":"Password1!","attempts":5,"banned":false},{"uid":"user_2","pwd":"Password2@","attempts":5,"banned":false},{"uid":"user_3","pwd":"Password3#","attempts":0,"banned":true},{"uid":"thing_man","pwd":"Happy44*","attempts":5,"banned":false},{"uid":"tired_scientist","pwd":"Happiness42!","attempts":5,"banned":false}]}
-=======
-{"users":[{"uid":"user_1","pwd":"Password1!","attempts":5,"banned":false},{"uid":"user_2","pwd":"Password2@","attempts":0,"banned":true},{"uid":"user_3","pwd":"Password3#","attempts":0,"banned":true},{"uid":"thing_man","pwd":"Happy44*","attempts":5,"banned":false}]}
->>>>>>> 350411a5dec236cc8b167a65bf32566387807b16
