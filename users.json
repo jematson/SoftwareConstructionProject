@@ -1,1 +1,0 @@
-{"users":[{"uid":"user_1","pwd":"Password1!","attempts":5,"banned":false},{"uid":"user_2","pwd":"Password2@","attempts":0,"banned":true},{"uid":"user_3","pwd":"Password3#","attempts":0,"banned":true},{"uid":"thing_man","pwd":"Happy44*","attempts":5,"banned":false}]}
