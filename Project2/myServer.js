@@ -134,6 +134,12 @@ app.post('/signin', (req, res) => {
   }
 });
 
+app.post('/addvideo', (req, res) => {
+  add_video(`${req.body.url}`).catch(console.dir);
+
+  res.render('pages/success');
+});
+
 // Log Out
 app.post('/', (req, res) => {
   console.log(`User logged out`);
@@ -191,5 +197,21 @@ async function retrieve_user(uid) {
       return distinctValues[0];
   } finally {
       await client.close();
+  }
+}
+
+async function add_video(url) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    // create a document to insert
+    const doc = {
+        link: url
+    }
+    const result = await mycollection.insertOne(doc);
+    console.log(`A document was inserted with the _id:
+    ${result.insertedId}`);
+  } finally {
+    await client.close();
   }
 }
