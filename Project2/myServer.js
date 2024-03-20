@@ -1,4 +1,5 @@
 var fs = require('fs');
+const { MongoClient } = require("mongodb");
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -28,6 +29,8 @@ const attemptsDisplay = {
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
+
+  send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
 
   // Check if username is already taken
   var taken = false;
@@ -59,6 +62,7 @@ app.post('/signup', (req,res) => {
     });
   }
 });
+
 
 // Sign In
 app.post('/signin', (req, res) => {
@@ -149,3 +153,43 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on port${port}`);
 });
+
+// MongoDB access functions
+const uri = "mongodb://localhost:27017";
+const client = new MongoClient(uri);
+
+async function send_user(uid, pwd) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    // create a document to insert
+    const doc = {
+        username: uid,
+        password: pwd,
+        attempts: 5
+    }
+    const result = await mycollection.insertOne(doc);
+    console.log(`A document was inserted with the _id:
+    ${result.insertedId}`);
+  } finally {
+    await client.close();
+  }
+}
+
+async function retrieve_user(uid) {
+  try {
+      console.log("inside run of server")
+      // define a database and collection on which to run the method
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "username";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      console.log(distinctValues[0]);
+      return distinctValues[0];
+  } finally {
+      await client.close();
+  }
+}
