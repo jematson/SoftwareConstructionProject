@@ -30,14 +30,17 @@ const attemptsDisplay = {
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
 
-  
+
   (async() => {
-    curr_user = await retrieve_user(`${req.body.uid}`);
-    if(curr_user == `${req.body.uid}`) {
+    // Search database for the given username
+    requested_user = await retrieve_user(`${req.body.uid}`);
+    // If username is within database, display error
+    if(requested_user == `${req.body.uid}`) {
       res.render('pages/page', {
         messageCenter: messageCenter.signUpError,
         attemptsDisplay: attemptsDisplay.default
       });
+    // If username is free, add new user to database
     } else {
       send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
       res.render('pages/page', {
@@ -94,6 +97,20 @@ app.post('/signin', (req, res) => {
   // 1 = username and password do not match
   // 2 = username and password match, success
   // 4 = user banned
+
+  (async() => {
+    // Search database for the given username
+    stored_pwd = await check_password(`${req.body.uid}`);
+
+    if(`${req.body.pwd}` == stored_pwd) {
+      res.render('pages/success');
+    } else {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError1,
+        attemptsDisplay: attemptsDisplay.default
+      });
+    }
+  })()
 
   /*
   let signInCondition = 0;
@@ -213,6 +230,23 @@ async function retrieve_user(uid) {
       const people = database.collection("users");
       // specify the document field
       const fieldName = "username";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {
+      //await client.close();
+  }
+}
+
+async function check_password(uid) {
+  try {
+      console.log("inside run of server")
+      // define a database and collection on which to run the method
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "password";
       // specify an optional query document
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
