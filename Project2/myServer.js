@@ -49,8 +49,6 @@ app.post('/signup', (req,res) => {
       });
     }
   })()
-  console.log("Out of sign up async function");
-
 
   /*
 
@@ -92,12 +90,6 @@ app.post('/signup', (req,res) => {
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  // Sign in Conditions
-  // 0 = user does not exist
-  // 1 = username and password do not match
-  // 2 = username and password match, success
-  // 4 = user banned
-
   (async() => {
     // Search database for the given username
     stored_pwd = await check_password(`${req.body.uid}`);
@@ -113,6 +105,12 @@ app.post('/signin', (req, res) => {
   })()
 
   /*
+  // Sign in Conditions
+  // 0 = user does not exist
+  // 1 = username and password do not match
+  // 2 = username and password match, success
+  // 4 = user banned
+
   let signInCondition = 0;
   var currUser = -1;
   for(let i=0; i < jsonData.users.length; ++i) {
@@ -181,6 +179,10 @@ app.post('/addvideo', (req, res) => {
   res.render('pages/success');
 });
 
+app.post('/playvideo', (req, res) => {
+  res.render('pages/video_player');
+});
+
 // Log Out
 app.post('/', (req, res) => {
   console.log(`User logged out`);
@@ -188,6 +190,12 @@ app.post('/', (req, res) => {
     messageCenter: messageCenter.default,
     attemptsDisplay: attemptsDisplay.default
   });
+});
+
+// Return to Home from video player
+app.post('/home', (req, res) => {
+  console.log(`User returned to home page`);
+  res.render('pages/success');
 });
 
 const port = 10000;
