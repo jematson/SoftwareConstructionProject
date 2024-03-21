@@ -30,7 +30,26 @@ const attemptsDisplay = {
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
 
-  send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
+  
+  (async() => {
+    curr_user = await retrieve_user(`${req.body.uid}`);
+    if(curr_user == `${req.body.uid}`) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signUpError,
+        attemptsDisplay: attemptsDisplay.default
+      });
+    } else {
+      send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
+      res.render('pages/page', {
+        messageCenter: messageCenter.signUpSuccess,
+        attemptsDisplay: attemptsDisplay.default
+      });
+    }
+  })()
+  console.log("Out of sign up async function");
+
+
+  /*
 
   // Check if username is already taken
   var taken = false;
@@ -61,6 +80,8 @@ app.post('/signup', (req,res) => {
       attemptsDisplay: attemptsDisplay.default
     });
   }
+  */
+
 });
 
 
@@ -74,6 +95,7 @@ app.post('/signin', (req, res) => {
   // 2 = username and password match, success
   // 4 = user banned
 
+  /*
   let signInCondition = 0;
   var currUser = -1;
   for(let i=0; i < jsonData.users.length; ++i) {
@@ -132,8 +154,10 @@ app.post('/signin', (req, res) => {
       attemptsDisplay: attemptsDisplay.default
     });
   }
+  */
 });
 
+// Add Video
 app.post('/addvideo', (req, res) => {
   add_video(`${req.body.url}`).catch(console.dir);
 
@@ -192,10 +216,9 @@ async function retrieve_user(uid) {
       // specify an optional query document
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
-      console.log(distinctValues[0]);
       return distinctValues[0];
   } finally {
-      await client.close();
+      //await client.close();
   }
 }
 
