@@ -175,8 +175,7 @@ async function send_user(uid, pwd) {
         attempts: 5
     }
     const result = await mycollection.insertOne(doc);
-    console.log(`A document was inserted with the _id:
-    ${result.insertedId}`);
+    console.log(`A document was inserted with the _id: ${result.insertedId}`);
   } finally {
     await client.close();
   }
@@ -209,8 +208,7 @@ async function add_video(url) {
         link: url
     }
     const result = await mycollection.insertOne(doc);
-    console.log(`A document was inserted with the _id:
-    ${result.insertedId}`);
+    console.log(`A document was inserted with the _id: ${result.insertedId}`);
   } finally {
     await client.close();
   }
