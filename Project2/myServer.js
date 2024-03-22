@@ -4,9 +4,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+/*
 const data = fs.readFileSync('users.json');
 const jsonData = JSON.parse(data);
 console.log(jsonData);
+*/
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,7 +31,6 @@ const attemptsDisplay = {
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
-
 
   (async() => {
     // Search database for the given username
@@ -84,7 +85,6 @@ app.post('/signup', (req,res) => {
   */
 
 });
-
 
 // Sign In
 app.post('/signin', (req, res) => {
@@ -174,13 +174,19 @@ app.post('/signin', (req, res) => {
 
 // Add Video
 app.post('/addvideo', (req, res) => {
-  add_video(`${req.body.url}`).catch(console.dir);
-
+  add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir);
   res.render('pages/success');
 });
 
+// Play Video
 app.post('/playvideo', (req, res) => {
-  res.render('pages/video_player');
+  (async() => {
+    link = await retrieve_video('muppet');
+    console.log(link);
+    res.render('pages/video_player', {
+      vid_link: link
+    });
+  })()
 });
 
 // Log Out
@@ -264,17 +270,35 @@ async function check_password(uid) {
   }
 }
 
-async function add_video(url) {
+async function add_video(url, name) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
     // create a document to insert
     const doc = {
+        title: name,
         link: url
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
   } finally {
     await client.close();
+  }
+}
+
+async function retrieve_video(name) {
+  try {
+      console.log("inside run of server")
+      // define a database and collection on which to run the method
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "link";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {
+      //await client.close();
   }
 }

@@ -15,18 +15,20 @@ form {text-align: center;}
 </p>
 
 <form method="POST" action="http://localhost:10000/addvideo">
-    <label for="txt_uid">Enter Video URL:</label>
+    <label for="txt_uid">Enter Video name and URL:</label>
+    <input type='text' name="name"></input>
     <input type='text' name="url"></input><br>
     <input type="Submit" value="Add Video">
+</form>
+
+<form method="POST" action="http://localhost:10000/playvideo">
+    <input type="Submit" value="Play Video">
 </form>
 
 <form method="POST" action="http://localhost:10000/">
     <input type="Submit" value="Log Out">
 </form>
 
-<form method="POST" action="http://localhost:10000/playvideo">
-    <input type="Submit" value="Play Video">
-</form>
 
 
 </body>
