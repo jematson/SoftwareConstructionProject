@@ -181,8 +181,7 @@ app.post('/addvideo', (req, res) => {
 // Play Video
 app.post('/playvideo', (req, res) => {
   (async() => {
-    link = await retrieve_video('muppet');
-    console.log(link);
+    link = await retrieve_video(`${req.body.name}`);
     res.render('pages/video_player', {
       vid_link: link
     });
