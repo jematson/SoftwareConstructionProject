@@ -101,7 +101,7 @@ app.post('/signin', (req, res) => {
     if(entered_pwd == stored_pwd) {
       role = await check_role(`${req.body.uid}`);
       if (role == "viewer"){
-        res.render('pages/success');
+        res.render('pages/viewer');
       } else if (role == "editor"){
         res.render('pages/editor');
       } else if (role == "manager") {
@@ -186,7 +186,7 @@ app.post('/signin', (req, res) => {
 // Add Video
 app.post('/addvideo', (req, res) => {
   add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir);
-  res.render('pages/success');
+  res.render('pages/editor');
 });
 
 // Play Video
