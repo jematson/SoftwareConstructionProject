@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+const crypto = require('crypto');
+
 /*
 const data = fs.readFileSync('users.json');
 const jsonData = JSON.parse(data);
@@ -43,7 +45,8 @@ app.post('/signup', (req,res) => {
       });
     // If username is free, add new user to database
     } else {
-      send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
+      hashed_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
+      send_user(`${req.body.uid}`, hashed_pwd).catch(console.dir)
       res.render('pages/page', {
         messageCenter: messageCenter.signUpSuccess,
         attemptsDisplay: attemptsDisplay.default
@@ -93,8 +96,9 @@ app.post('/signin', (req, res) => {
   (async() => {
     // Search database for the given username
     stored_pwd = await check_password(`${req.body.uid}`);
+    entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
     
-    if(`${req.body.pwd}` == stored_pwd) {
+    if(entered_pwd == stored_pwd) {
       role = await check_role(`${req.body.uid}`);
       if (role == "viewer"){
         res.render('pages/success');
