@@ -93,9 +93,16 @@ app.post('/signin', (req, res) => {
   (async() => {
     // Search database for the given username
     stored_pwd = await check_password(`${req.body.uid}`);
-
+    
     if(`${req.body.pwd}` == stored_pwd) {
-      res.render('pages/success');
+      role = await check_role(`${req.body.uid}`);
+      if (role == "viewer"){
+        res.render('pages/success');
+      } else if (role == "editor"){
+        res.render('pages/editor');
+      } else if (role == "manager") {
+        res.render('pages/manager');
+      }
     } else {
       res.render('pages/page', {
         messageCenter: messageCenter.signInError1,
@@ -197,11 +204,13 @@ app.post('/', (req, res) => {
   });
 });
 
+/*
 // Return to Home from video player
 app.post('/home', (req, res) => {
   console.log(`User returned to home page`);
   res.render('pages/success');
 });
+*/
 
 const port = 10000;
 app.get('/', (req, res) => {
@@ -231,7 +240,7 @@ async function send_user(uid, pwd) {
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
   } finally {
-    await client.close();
+    //await client.close();
   }
 }
 
@@ -269,6 +278,23 @@ async function check_password(uid) {
   }
 }
 
+async function check_role(uid) {
+  try {
+      console.log("inside run of server")
+      // define a database and collection on which to run the method
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "role";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {
+      //await client.close();
+  }
+}
+
 async function add_video(url, name) {
   try {
     const mydatabase = client.db("BineData");
@@ -281,7 +307,7 @@ async function add_video(url, name) {
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
   } finally {
-    await client.close();
+    //await client.close();
   }
 }
 
