@@ -10,13 +10,18 @@ iframe {text-align: center;}
 
 <body style="background-color:rgb(177, 125, 71);">
 
-<h1>Welcome to <span>🅱️</span>ine</h1>
+<h1>Video Player</h1>
 <p>
     Here is video <br>
     <iframe width="420" height="315"
     src= <%= vid_link %> >
     </iframe>
 </p>
+
+<form method="POST" action="http://localhost:10000/likevideo">
+    <input type="Submit" value="Like">
+    <input type="hidden" name="curr_video" value="<%= vid_link %>" >
+</form>
 
 </body>
 </html>

@@ -22,7 +22,8 @@ const messageCenter = {
   signInError0: 'Error: user does not exist',
   signInError1: 'Error: username and password do not match',
   signInError3: 'Error: What just happened?',
-  signInError4: 'Error: user banned'
+  signInError4: 'Error: user banned',
+  signInDelay: 'User role not yet assigned. Wait for admin.'
 }
 
 const attemptsDisplay = {
@@ -54,39 +55,6 @@ app.post('/signup', (req,res) => {
     }
   })()
 
-  /*
-
-  // Check if username is already taken
-  var taken = false;
-  for(let i=0; i < jsonData.users.length; ++i) {
-    console.log(jsonData.users[i].uid);
-    if(jsonData.users[i].uid == `${req.body.uid}`) {
-      taken=true;
-    }
-  }
-  // If username free, send username and password to json file
-  if(taken == false) {
-    jsonData.users.push({
-      uid: `${req.body.uid}`,
-      pwd: `${req.body.pwd}`,
-      attempts: 5,
-      banned: false
-    });
-    fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    // Display successful sign up message
-    res.render('pages/page', {
-      messageCenter: messageCenter.signUpSuccess,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else {
-    // Display sign up error
-    res.render('pages/page', {
-      messageCenter: messageCenter.signUpError,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  }
-  */
-
 });
 
 // Sign In
@@ -97,8 +65,10 @@ app.post('/signin', (req, res) => {
     // Search database for the given username
     stored_pwd = await check_password(`${req.body.uid}`);
     entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
+    attempts_left= await check_attempts(`${req.body.uid}`);
     
-    if(entered_pwd == stored_pwd) {
+    // If password matches, check role and display page
+    if(entered_pwd == stored_pwd && attempts_left > 0) {
       role = await check_role(`${req.body.uid}`);
       if (role == "viewer"){
         res.render('pages/viewer');
@@ -106,7 +76,13 @@ app.post('/signin', (req, res) => {
         res.render('pages/editor');
       } else if (role == "manager") {
         res.render('pages/manager');
+      } else {
+        res.render('pages/page', {
+          messageCenter: messageCenter.signInDelay,
+          attemptsDisplay: attemptsDisplay.default
+        });
       }
+    // If password does not match, display mismatch error
     } else {
       res.render('pages/page', {
         messageCenter: messageCenter.signInError1,
@@ -199,6 +175,17 @@ app.post('/playvideo', (req, res) => {
   })()
 });
 
+// Like Video
+app.post('/likevideo', (req, res) => {
+  (async() => {
+    //link = await retrieve_video(`${req.body.name}`);
+    console.log(`${req.body.curr_vid}`);
+    res.render('pages/video_player', {
+      vid_link: `${req.body.curr_vid}`
+    });
+  })()
+});
+
 // Log Out
 app.post('/', (req, res) => {
   console.log(`User logged out`);
@@ -239,19 +226,17 @@ async function send_user(uid, pwd) {
     const doc = {
         username: uid,
         password: pwd,
-        attempts: 5
+        attempts: 5,
+        role: "temp"
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  } finally {
-    //await client.close();
-  }
+  } finally {}
 }
 
 async function retrieve_user(uid) {
   try {
       console.log("inside run of server")
-      // define a database and collection on which to run the method
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
@@ -260,15 +245,12 @@ async function retrieve_user(uid) {
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
-  } finally {
-      //await client.close();
-  }
+  } finally {}
 }
 
 async function check_password(uid) {
   try {
       console.log("inside run of server")
-      // define a database and collection on which to run the method
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
@@ -277,15 +259,12 @@ async function check_password(uid) {
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
-  } finally {
-      //await client.close();
-  }
+  } finally {}
 }
 
 async function check_role(uid) {
   try {
       console.log("inside run of server")
-      // define a database and collection on which to run the method
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
@@ -294,9 +273,21 @@ async function check_role(uid) {
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
-  } finally {
-      //await client.close();
-  }
+  } finally {}
+}
+
+async function check_attempts(uid) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "attempts";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
 }
 
 async function add_video(url, name) {
@@ -306,19 +297,17 @@ async function add_video(url, name) {
     // create a document to insert
     const doc = {
         title: name,
-        link: url
+        link: url,
+        likes: 0
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  } finally {
-    //await client.close();
-  }
+  } finally {}
 }
 
 async function retrieve_video(name) {
   try {
       console.log("inside run of server")
-      // define a database and collection on which to run the method
       const database = client.db("BineData");
       const people = database.collection("videos");
       // specify the document field
@@ -327,7 +316,5 @@ async function retrieve_video(name) {
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
-  } finally {
-      //await client.close();
-  }
+  } finally {}
 }
