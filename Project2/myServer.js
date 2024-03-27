@@ -166,11 +166,12 @@ app.post('/addvideo', (req, res) => {
 });
 
 // Play Video
-app.post('/playvideo', (req, res) => {
+app.get('/playvideo', (req, res) => {
   (async() => {
-    link = await retrieve_video(`${req.body.name}`);
+    link = await retrieve_video(`${req.query.name}`);
     res.render('pages/video_player', {
-      vid_link: link
+      vid_link: link,
+      vid_title: `${req.query.name}`
     });
   })()
 });
@@ -179,10 +180,12 @@ app.post('/playvideo', (req, res) => {
 app.post('/likevideo', (req, res) => {
   (async() => {
     //link = await retrieve_video(`${req.body.name}`);
-    console.log(`${req.body.curr_vid}`);
-    res.render('pages/video_player', {
-      vid_link: `${req.body.curr_vid}`
-    });
+    like_video(`${req.body.name}`).catch(console.dir)
+    console.log(`liked video`);
+    res.redirect(`/playvideo?name=${req.body.name}`);
+    //res.render('pages/video_player', {
+    //  vid_link: `${req.body.curr_vid}`
+    //});
   })()
 });
 
@@ -316,5 +319,18 @@ async function retrieve_video(name) {
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
+  } finally {}
+}
+
+async function like_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $inc: {likes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` likes increased`);
   } finally {}
 }
