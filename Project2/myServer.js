@@ -6,12 +6,6 @@ const app = express();
 
 const crypto = require('crypto');
 
-/*
-const data = fs.readFileSync('users.json');
-const jsonData = JSON.parse(data);
-console.log(jsonData);
-*/
-
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -91,6 +85,7 @@ app.post('/signin', (req, res) => {
       });
     // If password does not match, display mismatch error
     } else {
+      // Decrement attempts remaining, but don't go below 0
       if(attempts_left > 0) {
         dec_attempts(`${req.body.uid}`).catch(console.dir)
       } else {
@@ -102,73 +97,6 @@ app.post('/signin', (req, res) => {
       });
     }
   })()
-
-  /*
-  // Sign in Conditions
-  // 0 = user does not exist
-  // 1 = username and password do not match
-  // 2 = username and password match, success
-  // 4 = user banned
-
-  let signInCondition = 0;
-  var currUser = -1;
-  for(let i=0; i < jsonData.users.length; ++i) {
-    // Condition 2: Correct sign in
-    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == false) {
-      signInCondition = 2;
-      jsonData.users[i].attempts = 5;
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    } 
-    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == true) {
-      signInCondition = 4;
-    }
-    // Condition 1: Username exists, pwd wrong
-    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
-      signInCondition = 1;
-      currUser = i;
-      jsonData.users[i].attempts -= 1;
-      if(jsonData.users[i].attempts < 0){
-        jsonData.users[i].attempts = 0;
-      }
-      if(jsonData.users[i].attempts == 0) {
-        jsonData.users[i].banned = true;
-      }
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    }
-  }
-
-  if(signInCondition == 2) {
-    res.render('pages/success');
-  } else if (signInCondition == 1){
-    if(jsonData.users[currUser].attempts == 0) {
-      res.render('pages/page', {
-        messageCenter: messageCenter.signInError4,
-        attemptsDisplay: attemptsDisplay.default
-      });
-    }
-    else {
-      res.render('pages/page', {
-        messageCenter: messageCenter.signInError1,
-        attemptsDisplay: attemptsDisplay.attempts + jsonData.users[currUser].attempts
-      });
-    }
-  } else if (signInCondition == 0) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError0,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else if (signInCondition == 4) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError4,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError3,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  }
-  */
 });
 
 // Add Video
