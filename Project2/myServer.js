@@ -106,7 +106,9 @@ app.post('/signin', (req, res) => {
 app.post('/addvideo', (req, res) => {
   (async() => {
     add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
-    res.render('pages/editor');
+    list = await get_vids();
+    list.sort();
+    res.render('pages/editor', { titles: list });
   })()
 });
 
