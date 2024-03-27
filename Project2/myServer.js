@@ -69,6 +69,7 @@ app.post('/signin', (req, res) => {
     
     // If password matches, check role and display page
     if(entered_pwd == stored_pwd && attempts_left > 0) {
+      reset_attempts(`${req.body.uid}`, 5).catch(console.dir)
       role = await check_role(`${req.body.uid}`);
       if (role == "viewer"){
         res.render('pages/viewer');
@@ -82,11 +83,22 @@ app.post('/signin', (req, res) => {
           attemptsDisplay: attemptsDisplay.default
         });
       }
+    // If user has used up all attempts, display ban message
+    } else if(attempts_left <= 0) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError4,
+        attemptsDisplay: attemptsDisplay.default
+      });
     // If password does not match, display mismatch error
     } else {
+      if(attempts_left > 0) {
+        dec_attempts(`${req.body.uid}`).catch(console.dir)
+      } else {
+        reset_attempts(`${req.body.uid}`, 0).catch(console.dir)
+      }
       res.render('pages/page', {
         messageCenter: messageCenter.signInError1,
-        attemptsDisplay: attemptsDisplay.default
+        attemptsDisplay: attemptsDisplay.attempts + attempts_left
       });
     }
   })()
@@ -161,7 +173,7 @@ app.post('/signin', (req, res) => {
 
 // Add Video
 app.post('/addvideo', (req, res) => {
-  add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir);
+  add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
   res.render('pages/editor');
 });
 
@@ -179,13 +191,9 @@ app.get('/playvideo', (req, res) => {
 // Like Video
 app.post('/likevideo', (req, res) => {
   (async() => {
-    //link = await retrieve_video(`${req.body.name}`);
     like_video(`${req.body.name}`).catch(console.dir)
     console.log(`liked video`);
     res.redirect(`/playvideo?name=${req.body.name}`);
-    //res.render('pages/video_player', {
-    //  vid_link: `${req.body.curr_vid}`
-    //});
   })()
 });
 
@@ -290,6 +298,32 @@ async function check_attempts(uid) {
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
+  } finally {}
+}
+
+async function dec_attempts(uid) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    
+    const myquery = { username: uid };
+    const newvalue = { $inc: {attempts: -1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(uid + ` attempts decremented`);
+  } finally {}
+}
+
+async function reset_attempts(uid, num) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    
+    const myquery = { username: uid };
+    const newvalue = { $set: {attempts: num}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(uid + ` attempts decremented`);
   } finally {}
 }
 
