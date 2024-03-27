@@ -9,6 +9,7 @@ const crypto = require('crypto');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Display messages for signin/signup page
 const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
@@ -19,7 +20,6 @@ const messageCenter = {
   signInError4: 'Error: user banned',
   signInDelay: 'User role not yet assigned. Wait for admin.'
 }
-
 const attemptsDisplay = {
   default: ' ',
   attempts: 'Attempts remaining: ',
@@ -32,7 +32,7 @@ app.post('/signup', (req,res) => {
   (async() => {
     // Search database for the given username
     requested_user = await retrieve_user(`${req.body.uid}`);
-    // If username is within database, display error
+    // If username is taken in database, display error
     if(requested_user == `${req.body.uid}`) {
       res.render('pages/page', {
         messageCenter: messageCenter.signUpError,
@@ -48,7 +48,6 @@ app.post('/signup', (req,res) => {
       });
     }
   })()
-
 });
 
 // Sign In
@@ -56,21 +55,25 @@ app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
   (async() => {
-    // Search database for the given username
+    // Search database for the given username and collect data
     stored_pwd = await check_password(`${req.body.uid}`);
-    entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
     attempts_left= await check_attempts(`${req.body.uid}`);
+    entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
     
-    // If password matches, check role and display page
+    // If password matches and user not banned, check role and display page
     if(entered_pwd == stored_pwd && attempts_left > 0) {
       reset_attempts(`${req.body.uid}`, 5).catch(console.dir)
       role = await check_role(`${req.body.uid}`);
+
+      list = await get_vids();
+      list.sort();
+
       if (role == "viewer"){
-        res.render('pages/viewer');
+        res.render('pages/viewer', { titles: list });
       } else if (role == "editor"){
-        res.render('pages/editor');
+        res.render('pages/editor', { titles: list });
       } else if (role == "manager") {
-        res.render('pages/manager');
+        res.render('pages/manager', { titles: list });
       } else {
         res.render('pages/page', {
           messageCenter: messageCenter.signInDelay,
@@ -101,8 +104,10 @@ app.post('/signin', (req, res) => {
 
 // Add Video
 app.post('/addvideo', (req, res) => {
-  add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
-  res.render('pages/editor');
+  (async() => {
+    add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
+    res.render('pages/editor');
+  })()
 });
 
 // Play Video
@@ -281,6 +286,16 @@ async function retrieve_video(name) {
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
+  } finally {}
+}
+
+async function get_vids() {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const vid_collection = database.collection("videos");
+      const videos = await vid_collection.find({}, { projection: { title: 1, _id: 0 } }).toArray();
+      return videos.map(video => video.title);
   } finally {}
 }
 
