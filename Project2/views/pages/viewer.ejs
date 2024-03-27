@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+h1 {text-align:center;}
+h2 {text-align:center;}
+p {text-align: center;}
+form {text-align: center;}
+ul {text-align:center;}
+</style>
+
+<body style="background-color:rgb(177, 125, 71);">
+
+<h1>Welcome Viewer</h1>
+<p>
+    We have video <br>
+</p>
+
+<form method="GET" action="http://localhost:10000/playvideo">
+    <label for="txt_title">Search Video Title:</label>
+    <input type='text' name="name"></input>
+    <input type="Submit" value="Play Video">
+</form>
+
+<h2>Videos</h2>
+<ul>
+    <% titles.forEach(title => { %>
+        
+        <form method="GET" action="http://localhost:10000/playvideo">
+            <input type="hidden" name="name" value="<%= title %>">
+            <button type="submit"><%= title %></button>
+        </form>
+        
+    <% }); %>
+</ul>
+
+<form method="POST" action="http://localhost:10000/">
+    <input type="Submit" value="Log Out">
+</form>
+
+
+</body>
+</html>

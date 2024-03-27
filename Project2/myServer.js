@@ -4,13 +4,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
-const data = fs.readFileSync('users.json');
-const jsonData = JSON.parse(data);
-console.log(jsonData);
+const crypto = require('crypto');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Display messages for signin/signup page
 const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
@@ -18,9 +17,9 @@ const messageCenter = {
   signInError0: 'Error: user does not exist',
   signInError1: 'Error: username and password do not match',
   signInError3: 'Error: What just happened?',
-  signInError4: 'Error: user banned'
+  signInError4: 'Error: user banned',
+  signInDelay: 'User role not yet assigned. Wait for admin.'
 }
-
 const attemptsDisplay = {
   default: ' ',
   attempts: 'Attempts remaining: ',
@@ -30,114 +29,107 @@ const attemptsDisplay = {
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
 
-  send_user(`${req.body.uid}`, `${req.body.pwd}`).catch(console.dir)
-
-  // Check if username is already taken
-  var taken = false;
-  for(let i=0; i < jsonData.users.length; ++i) {
-    console.log(jsonData.users[i].uid);
-    if(jsonData.users[i].uid == `${req.body.uid}`) {
-      taken=true;
+  (async() => {
+    // Search database for the given username
+    requested_user = await retrieve_user(`${req.body.uid}`);
+    // If username is taken in database, display error
+    if(requested_user == `${req.body.uid}`) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signUpError,
+        attemptsDisplay: attemptsDisplay.default
+      });
+    // If username is free, add new user to database
+    } else {
+      hashed_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
+      send_user(`${req.body.uid}`, hashed_pwd).catch(console.dir)
+      res.render('pages/page', {
+        messageCenter: messageCenter.signUpSuccess,
+        attemptsDisplay: attemptsDisplay.default
+      });
     }
-  }
-  // If username free, send username and password to json file
-  if(taken == false) {
-    jsonData.users.push({
-      uid: `${req.body.uid}`,
-      pwd: `${req.body.pwd}`,
-      attempts: 5,
-      banned: false
-    });
-    fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    // Display successful sign up message
-    res.render('pages/page', {
-      messageCenter: messageCenter.signUpSuccess,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else {
-    // Display sign up error
-    res.render('pages/page', {
-      messageCenter: messageCenter.signUpError,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  }
+  })()
 });
-
 
 // Sign In
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
 
-  // Sign in Conditions
-  // 0 = user does not exist
-  // 1 = username and password do not match
-  // 2 = username and password match, success
-  // 4 = user banned
+  (async() => {
+    // Search database for the given username and collect data
+    stored_pwd = await check_password(`${req.body.uid}`);
+    attempts_left= await check_attempts(`${req.body.uid}`);
+    entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
+    
+    // If password matches and user not banned, check role and display page
+    if(entered_pwd == stored_pwd && attempts_left > 0) {
+      reset_attempts(`${req.body.uid}`, 5).catch(console.dir)
+      role = await check_role(`${req.body.uid}`);
 
-  let signInCondition = 0;
-  var currUser = -1;
-  for(let i=0; i < jsonData.users.length; ++i) {
-    // Condition 2: Correct sign in
-    if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == false) {
-      signInCondition = 2;
-      jsonData.users[i].attempts = 5;
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    } 
-    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd == `${req.body.pwd}`) && jsonData.users[i].banned == true) {
-      signInCondition = 4;
-    }
-    // Condition 1: Username exists, pwd wrong
-    else if((jsonData.users[i].uid == `${req.body.uid}`) && (jsonData.users[i].pwd != `${req.body.pwd}`)) {
-      signInCondition = 1;
-      currUser = i;
-      jsonData.users[i].attempts -= 1;
-      if(jsonData.users[i].attempts < 0){
-        jsonData.users[i].attempts = 0;
-      }
-      if(jsonData.users[i].attempts == 0) {
-        jsonData.users[i].banned = true;
-      }
-      fs.writeFileSync('users.json', JSON.stringify(jsonData));
-    }
-  }
+      list = await get_vids();
+      list.sort();
 
-  if(signInCondition == 2) {
-    res.render('pages/success');
-  } else if (signInCondition == 1){
-    if(jsonData.users[currUser].attempts == 0) {
+      if (role == "viewer"){
+        res.render('pages/viewer', { titles: list });
+      } else if (role == "editor"){
+        res.render('pages/editor', { titles: list });
+      } else if (role == "manager") {
+        res.render('pages/manager', { titles: list });
+      } else {
+        res.render('pages/page', {
+          messageCenter: messageCenter.signInDelay,
+          attemptsDisplay: attemptsDisplay.default
+        });
+      }
+    // If user has used up all attempts, display ban message
+    } else if(attempts_left <= 0) {
       res.render('pages/page', {
         messageCenter: messageCenter.signInError4,
         attemptsDisplay: attemptsDisplay.default
       });
-    }
-    else {
+    // If password does not match, display mismatch error
+    } else {
+      // Decrement attempts remaining, but don't go below 0
+      if(attempts_left > 0) {
+        dec_attempts(`${req.body.uid}`).catch(console.dir)
+      } else {
+        reset_attempts(`${req.body.uid}`, 0).catch(console.dir)
+      }
       res.render('pages/page', {
         messageCenter: messageCenter.signInError1,
-        attemptsDisplay: attemptsDisplay.attempts + jsonData.users[currUser].attempts
+        attemptsDisplay: attemptsDisplay.attempts + attempts_left
       });
     }
-  } else if (signInCondition == 0) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError0,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else if (signInCondition == 4) {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError4,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  } else {
-    res.render('pages/page', {
-      messageCenter: messageCenter.signInError3,
-      attemptsDisplay: attemptsDisplay.default
-    });
-  }
+  })()
 });
 
+// Add Video
 app.post('/addvideo', (req, res) => {
-  add_video(`${req.body.url}`).catch(console.dir);
+  (async() => {
+    add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
+    list = await get_vids();
+    list.sort();
+    res.render('pages/editor', { titles: list });
+  })()
+});
 
-  res.render('pages/success');
+// Play Video
+app.get('/playvideo', (req, res) => {
+  (async() => {
+    link = await retrieve_video(`${req.query.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.query.name}`
+    });
+  })()
+});
+
+// Like Video
+app.post('/likevideo', (req, res) => {
+  (async() => {
+    like_video(`${req.body.name}`).catch(console.dir)
+    console.log(`liked video`);
+    res.redirect(`/playvideo?name=${req.body.name}`);
+  })()
 });
 
 // Log Out
@@ -148,6 +140,14 @@ app.post('/', (req, res) => {
     attemptsDisplay: attemptsDisplay.default
   });
 });
+
+/*
+// Return to Home from video player
+app.post('/home', (req, res) => {
+  console.log(`User returned to home page`);
+  res.render('pages/success');
+});
+*/
 
 const port = 10000;
 app.get('/', (req, res) => {
@@ -172,19 +172,17 @@ async function send_user(uid, pwd) {
     const doc = {
         username: uid,
         password: pwd,
-        attempts: 5
+        attempts: 5,
+        role: "temp"
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  } finally {
-    await client.close();
-  }
+  } finally {}
 }
 
 async function retrieve_user(uid) {
   try {
       console.log("inside run of server")
-      // define a database and collection on which to run the method
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
@@ -192,24 +190,126 @@ async function retrieve_user(uid) {
       // specify an optional query document
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
-      console.log(distinctValues[0]);
       return distinctValues[0];
-  } finally {
-      await client.close();
-  }
+  } finally {}
 }
 
-async function add_video(url) {
+async function check_password(uid) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "password";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function check_role(uid) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "role";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function check_attempts(uid) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = "attempts";
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function dec_attempts(uid) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    
+    const myquery = { username: uid };
+    const newvalue = { $inc: {attempts: -1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(uid + ` attempts decremented`);
+  } finally {}
+}
+
+async function reset_attempts(uid, num) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    
+    const myquery = { username: uid };
+    const newvalue = { $set: {attempts: num}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(uid + ` attempts decremented`);
+  } finally {}
+}
+
+async function add_video(url, name) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
     // create a document to insert
     const doc = {
-        link: url
+        title: name,
+        link: url,
+        likes: 0
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  } finally {
-    await client.close();
-  }
+  } finally {}
+}
+
+async function retrieve_video(name) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "link";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function get_vids() {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const vid_collection = database.collection("videos");
+      const videos = await vid_collection.find({}, { projection: { title: 1, _id: 0 } }).toArray();
+      return videos.map(video => video.title);
+  } finally {}
+}
+
+async function like_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $inc: {likes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` likes increased`);
+  } finally {}
 }
