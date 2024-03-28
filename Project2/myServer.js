@@ -116,11 +116,10 @@ app.post('/addvideo', (req, res) => {
 app.get('/playvideo', (req, res) => {
   (async() => {
     link = await retrieve_video(`${req.query.name}`);
-    curr_role = `${req.query.current_role}`
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.query.name}`,
-      role: curr_role
+      role: `${req.query.current_role}`
     });
   })()
 });
