@@ -105,7 +105,7 @@ app.post('/signin', (req, res) => {
 // Add Video
 app.post('/addvideo', (req, res) => {
   (async() => {
-    add_video(`${req.body.url}`, `${req.body.name}`).catch(console.dir)
+      add_video(`${req.body.url}`, `${req.body.name}`, `${req.body.genre}`).catch(console.dir)
     list = await get_vids();
     list.sort();
     res.render('pages/editor', { titles: list });
@@ -273,7 +273,7 @@ async function reset_attempts(uid, num) {
   } finally {}
 }
 
-async function add_video(url, name) {
+async function add_video(url, name, genre_cat) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
@@ -281,7 +281,8 @@ async function add_video(url, name) {
     const doc = {
         title: name,
         link: url,
-        likes: 0
+        likes: 0,
+        genre: genre_cat
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
