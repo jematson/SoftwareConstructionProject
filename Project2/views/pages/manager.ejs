@@ -17,6 +17,7 @@ ul {text-align:center;}
 </p>
 
 <form method="POST" action="http://localhost:10000/playvideo">
+    <input type="hidden" name="current_role" value="manager">
     <label for="txt_title">Search Video Title:</label>
     <input type='text' name="name"></input>
     <input type="Submit" value="Play Video">
@@ -28,6 +29,7 @@ ul {text-align:center;}
         
         <form method="GET" action="http://localhost:10000/playvideo">
             <input type="hidden" name="name" value="<%= title %>">
+            <input type="hidden" name="current_role" value="manager">
             <button type="submit"><%= title %></button>
         </form>
         

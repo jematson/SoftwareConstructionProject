@@ -116,10 +116,21 @@ app.post('/addvideo', (req, res) => {
 app.get('/playvideo', (req, res) => {
   (async() => {
     link = await retrieve_video(`${req.query.name}`);
+    role = `${req.query.current_role}`
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.query.name}`
     });
+  })()
+});
+
+// Delete Video
+app.get('/deletevideo', (req, res) => {
+  (async() => {
+    delete_video(`${req.query.name}`);
+    list = await get_vids();
+    list.sort();
+    res.render('pages/editor', { titles: list });
   })()
 });
 
@@ -274,6 +285,15 @@ async function add_video(url, name) {
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
+  } finally {}
+}
+
+async function delete_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    const myquery = { title: name};
+    mycollection.deleteOne(myquery);
   } finally {}
 }
 
