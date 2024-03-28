@@ -282,7 +282,8 @@ async function add_video(url, name, genre_cat) {
         title: name,
         link: url,
         likes: 0,
-        genre: genre_cat
+        genre: genre_cat,
+        feedback: ''
     }
     const result = await mycollection.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
