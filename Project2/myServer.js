@@ -311,7 +311,7 @@ async function delete_video(name) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
-    const myquery = { title: name};
+    const myquery = { title: name };
     mycollection.deleteOne(myquery);
   } finally {}
 }
@@ -325,7 +325,10 @@ async function retrieve_video(name) {
       const fieldName = "link";
       // specify an optional query document
       const query = { title: name };
-      const distinctValues = await people.distinct(fieldName, query);
+      // Check to see if the query exists
+      const distinctValues = database.collection.find({title: {$exists: true}})
+
+      //const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
   } finally {}
 }
