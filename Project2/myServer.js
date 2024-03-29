@@ -116,13 +116,19 @@ app.post('/addvideo', (req, res) => {
 app.get('/playvideo', (req, res) => {
   (async() => {
     link = await retrieve_video(`${req.query.name}`);
-    analytics = await get_likes(`${req.query.name}`);
-    res.render('pages/video_player', {
-      vid_link: link,
-      vid_title: `${req.query.name}`,
-      role: `${req.query.current_role}`,
-      likes: analytics
-    });
+    analytics_likes = await get_likes(`${req.query.name}`);
+    analytics_dislikes = await get_dislikes(`${req.query.name}`);
+
+    // Check for video actually exists and link is not undefined
+    if (!(link == 'undefined')){
+      res.render('pages/video_player', {
+        vid_link: link,
+        vid_title: `${req.query.name}`,
+        role: `${req.query.current_role}`,
+        likes: analytics_likes,
+        dislikes: analytics_dislikes
+      });
+    }
   })()
 });
 
@@ -367,6 +373,20 @@ async function get_likes(name) {
       const people = database.collection("videos");
       // specify the document field
       const fieldName = "likes";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function get_dislikes(name) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "dislikes";
       // specify an optional query document
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
