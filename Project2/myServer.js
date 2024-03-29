@@ -215,9 +215,19 @@ app.post('/searchtitle', (req, res) => {
   (async() => {
     console.log(`User searched video database by title`);
     vid_titles = await search_by_title(`${req.body.name}`);
-    res.render('pages/search_results', { titles: vid_titles });
+    res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
   })()
 });
+
+// Search based on genre
+app.post('/searchgenre', (req, res) => {
+  (async() => {
+    console.log(`User searched video database by title`);
+    vid_titles = await search_by_genre(`${req.body.name}`);
+    res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
+  })()
+});
+
 
 const port = 10000;
 app.get('/', (req, res) => {
@@ -473,6 +483,16 @@ async function search_by_title(name) {
     const database = client.db("BineData");
     const vid_collection = database.collection("videos");
     const videos = await vid_collection.find({ title: name }, { projection: { title: 1, _id: 0 } }).toArray();
+    return videos.map(video => video.title);
+  } finally {}
+}
+
+async function search_by_genre(name) {
+  try {
+    console.log("inside run of server")
+    const database = client.db("BineData");
+    const vid_collection = database.collection("videos");
+    const videos = await vid_collection.find({ genre: name }, { projection: { title: 1, _id: 0 } }).toArray();
     return videos.map(video => video.title);
   } finally {}
 }

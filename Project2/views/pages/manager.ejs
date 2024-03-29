@@ -16,11 +16,16 @@ ul {text-align:center;}
     Go manage some markets <br>
 </p>
 
-<form method="GET" action="http://localhost:10000/playvideo">
+<form method="POST" action="http://localhost:10000/searchtitle">
     <input type="hidden" name="current_role" value="manager">
     <label for="txt_title">Search Video Title:</label>
     <input type='text' name="name"></input>
-    <input type="Submit" value="Play Video">
+    <input type="Submit" value="Search Video">
+
+    <!-- Search bar -->
+    <label for="txt_title">Search Video Genre:</label>
+    <input type='text' name="genre"></input>
+    <input type="Submit" value="Search Genre"> 
 </form>
 
 <h2>Videos</h2>
