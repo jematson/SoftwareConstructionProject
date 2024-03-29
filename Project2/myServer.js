@@ -31,7 +31,7 @@ app.post('/signup', (req,res) => {
 
   (async() => {
     // Search database for the given username
-    requested_user = await retrieve_user(`${req.body.uid}`);
+    requested_user = await retrieve_user_data(`${req.body.uid}`, "username");
     // If username is taken in database, display error
     if(requested_user == `${req.body.uid}`) {
       res.render('pages/page', {
@@ -56,14 +56,14 @@ app.post('/signin', (req, res) => {
 
   (async() => {
     // Search database for the given username and collect data
-    stored_pwd = await check_password(`${req.body.uid}`);
-    attempts_left= await check_attempts(`${req.body.uid}`);
+    stored_pwd = await retrieve_user_data(`${req.body.uid}`, "password");
+    attempts_left= await retrieve_user_data(`${req.body.uid}`, "attempts");
     entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
     
     // If password matches and user not banned, check role and display page
     if(entered_pwd == stored_pwd && attempts_left > 0) {
       reset_attempts(`${req.body.uid}`, 5).catch(console.dir)
-      role = await check_role(`${req.body.uid}`);
+      role = await retrieve_user_data(`${req.body.uid}`, "role");
 
       list = await get_vids();
       list.sort();
@@ -105,7 +105,7 @@ app.post('/signin', (req, res) => {
 // Add Video
 app.post('/addvideo', (req, res) => {
   (async() => {
-      add_video(`${req.body.url}`, `${req.body.name}`, `${req.body.genre}`).catch(console.dir)
+    add_video(`${req.body.url}`, `${req.body.name}`, `${req.body.genre}`).catch(console.dir)
     list = await get_vids();
     list.sort();
     res.render('pages/editor', { titles: list });
@@ -115,10 +115,10 @@ app.post('/addvideo', (req, res) => {
 // Play Video
 app.post('/playvideo', (req, res) => {
   (async() => {
-    link = await retrieve_video(`${req.body.name}`);
-    analytics_likes = await get_likes(`${req.body.name}`);
-    analytics_dislikes = await get_dislikes(`${req.body.name}`);
-    comments = await get_feedback(`${req.body.name}`);
+    link = await retrieve_video_data(`${req.body.name}`, "link");
+    analytics_likes = await retrieve_video_data(`${req.body.name}`, "likes");
+    analytics_dislikes = await retrieve_video_data(`${req.body.name}`, "dislikes");
+    comments = await retrieve_video_data(`${req.body.name}`, "feedback");
     // Check for video actually exists and link is not undefined
     if (!(link == undefined)){
       res.render('pages/video_player', {
@@ -148,7 +148,7 @@ app.post('/likevideo', (req, res) => {
   (async() => {
     like_video(`${req.body.name}`).catch(console.dir)
     console.log(`liked video`);
-    link = await retrieve_video(`${req.body.name}`);
+    link = await retrieve_video_data(`${req.body.name}`, "link");
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
@@ -162,10 +162,10 @@ app.post('/addfeedback', (req, res) => {
   (async() => {
     add_feedback(`${req.body.name}`,`${req.body.vid_feedback}`).catch(console.dir)
     console.log(`video feedback added`);
-    link = await retrieve_video(`${req.body.name}`);
-    analytics_likes = await get_likes(`${req.query.name}`);
-    analytics_dislikes = await get_dislikes(`${req.query.name}`);
-    comments = await get_feedback(`${req.body.name}`);
+    link = await retrieve_video_data(`${req.body.name}`, "link");
+    analytics_likes = await retrieve_video_data(`${req.query.name}`, "likes");
+    analytics_dislikes = await retrieve_video_data(`${req.query.name}`, "dislikes");
+    comments = await retrieve_video_data(`${req.body.name}`, "feedback");
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
@@ -182,7 +182,7 @@ app.post('/dislikevideo', (req, res) => {
   (async() => {
     dislike_video(`${req.body.name}`).catch(console.dir)
     console.log(`disliked video`);
-    link = await retrieve_video(`${req.body.name}`);
+    link = await retrieve_video_data(`${req.body.name}`, "link");
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
@@ -262,55 +262,13 @@ async function send_user(uid, pwd) {
   } finally {}
 }
 
-async function retrieve_user(uid) {
+async function retrieve_user_data(uid, data) {
   try {
       console.log("inside run of server")
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
-      const fieldName = "username";
-      // specify an optional query document
-      const query = { username: uid };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-async function check_password(uid) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("users");
-      // specify the document field
-      const fieldName = "password";
-      // specify an optional query document
-      const query = { username: uid };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-async function check_role(uid) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("users");
-      // specify the document field
-      const fieldName = "role";
-      // specify an optional query document
-      const query = { username: uid };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-async function check_attempts(uid) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("users");
-      // specify the document field
-      const fieldName = "attempts";
+      const fieldName = data;
       // specify an optional query document
       const query = { username: uid };
       const distinctValues = await people.distinct(fieldName, query);
@@ -371,13 +329,13 @@ async function delete_video(name) {
   } finally {}
 }
 
-async function retrieve_video(name) {
+async function retrieve_video_data(name, data) {
   try {
       console.log("inside run of server")
       const database = client.db("BineData");
       const people = database.collection("videos");
       // specify the document field
-      const fieldName = "link";
+      const fieldName = data;
       // specify an optional query document
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
@@ -408,7 +366,6 @@ async function like_video(name) {
   } finally {}
 }
 
-
 async function add_feedback(name, data) {
     try {
     const mydatabase = client.db("BineData");
@@ -436,50 +393,6 @@ async function dislike_video(name) {
 
     const result = await mycollection.updateOne(myquery, newvalue);
     console.log(name + ` dislikes increased`);
-  } finally {}
-}
-
-
-async function get_feedback(name) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("videos");
-      // specify the document field
-      const fieldName = "feedback";
-      // specify an optional query document
-      const query = { title: name };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-
-async function get_likes(name) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("videos");
-      // specify the document field
-      const fieldName = "likes";
-      // specify an optional query document
-      const query = { title: name };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-async function get_dislikes(name) {
-  try {
-      console.log("inside run of server")
-      const database = client.db("BineData");
-      const people = database.collection("videos");
-      // specify the document field
-      const fieldName = "dislikes";
-      // specify an optional query document
-      const query = { title: name };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
   } finally {}
 }
 
