@@ -120,7 +120,7 @@ app.get('/playvideo', (req, res) => {
     analytics_dislikes = await get_dislikes(`${req.query.name}`);
 
     // Check for video actually exists and link is not undefined
-    if (!(link == 'undefined')){
+    if (!(link == null)){
       res.render('pages/video_player', {
         vid_link: link,
         vid_title: `${req.query.name}`,
@@ -329,6 +329,7 @@ async function retrieve_video(name) {
       const distinctValues = await people.find({title: {$exists: true}})
 
       //const distinctValues = await people.distinct(fieldName, query);
+      console.log(distinctValues[0])
       return distinctValues[0];
   } finally {}
 }
