@@ -117,11 +117,13 @@ app.get('/playvideo', (req, res) => {
   (async() => {
     link = await retrieve_video(`${req.query.name}`);
     analytics = await get_likes(`${req.query.name}`);
+    comments = await get_feedback(`${req.query.name}`);
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.query.name}`,
       role: `${req.query.current_role}`,
-      likes: analytics
+      likes: analytics,
+      manager_feedback: comments
     });
   })()
 });
@@ -364,6 +366,20 @@ async function add_feedback(name, data) {
 
     const result = await mycollection.updateOne(myquery, newvalue);
     console.log(name + ` likes increased`);
+  } finally {}
+}
+
+async function get_feedback(name) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "feedback";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
   } finally {}
 }
 
