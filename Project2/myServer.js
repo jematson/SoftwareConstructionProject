@@ -210,6 +210,25 @@ app.post('/home', (req, res) => {
   }
 });
 
+// Search based on title
+app.post('/searchtitle', (req, res) => {
+  (async() => {
+    console.log(`User searched video database by title`);
+    vid_titles = await search_by_title(`${req.body.name}`);
+    res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
+  })()
+});
+
+// Search based on genre
+app.post('/searchgenre', (req, res) => {
+  (async() => {
+    console.log(`User searched video database by title`);
+    vid_titles = await search_by_genre(`${req.body.genre}`);
+    res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
+  })()
+});
+
+
 const port = 10000;
 app.get('/', (req, res) => {
   res.render('pages/page', {
@@ -455,5 +474,25 @@ async function get_dislikes(name) {
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
+  } finally {}
+}
+
+async function search_by_title(name) {
+  try {
+    console.log("inside run of server")
+    const database = client.db("BineData");
+    const vid_collection = database.collection("videos");
+    const videos = await vid_collection.find({ title: name }, { projection: { title: 1, _id: 0 } }).toArray();
+    return videos.map(video => video.title);
+  } finally {}
+}
+
+async function search_by_genre(name) {
+  try {
+    console.log("inside run of server")
+    const database = client.db("BineData");
+    const vid_collection = database.collection("videos");
+    const videos = await vid_collection.find({ genre: name }, { projection: { title: 1, _id: 0 } }).toArray();
+    return videos.map(video => video.title);
   } finally {}
 }

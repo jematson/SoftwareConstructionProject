@@ -29,12 +29,16 @@ ul {text-align:center;}
     <input type="Submit" value="Add Video"> <br>
 </form>
 
-<form method="GET" action="http://localhost:10000/playvideo">
+<form method="POST" action="http://localhost:10000/searchtitle">
     <input type="hidden" name="current_role" value="editor">
-
     <label for="txt_title">Search Video Title:</label>
     <input type='text' name="name"></input>
-    <input type="Submit" value="Play Video">
+    <input type="Submit" value="Search Video">
+
+    <!-- Search bar -->
+    <label for="txt_title">Search Video Genre:</label>
+    <input type='text' name="genre"></input>
+    <input type="Submit" value="Search Genre" formaction="http://localhost:10000/searchgenre"> 
 </form>
 
 <h2>Videos</h2>
