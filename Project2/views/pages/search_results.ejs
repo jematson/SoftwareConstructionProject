@@ -12,7 +12,7 @@
 
     <% titles.forEach(title => { %>
         
-        <form method="GET" action="http://localhost:10000/playvideo">
+        <form method="POST" action="http://localhost:10000/playvideo">
             <input type="hidden" name="name" value="<%= title %>">
             <input type="hidden" name="current_role" value="viewer">
             <button type="submit"><%= title %></button>
