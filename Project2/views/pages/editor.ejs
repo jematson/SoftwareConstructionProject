@@ -57,18 +57,17 @@ ul {text-align:center;}
 </form>
 
 <h2>Videos</h2>
-<ul>
+<p>
     <% titles.forEach(title => { %>
-        
+
         <form method="POST" action="http://localhost:10000/playvideo">
             <input type="hidden" name="name" value="<%= title %>">
             <input type="hidden" name="current_role" value="editor">
             <button class="button" type="submit" size="50"><%= title %></button>
             <button type="submit" formaction="http://localhost:10000/deletevideo">Delete</button>
         </form>
-        
     <% }); %>
-</ul>
+</p>
 
 <form method="POST" action="http://localhost:10000/">
     <input type="Submit" value="Log Out">

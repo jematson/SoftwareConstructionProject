@@ -43,7 +43,7 @@ ul {text-align:center;}
 </form>
 
 <h2>Videos</h2>
-<ul>
+<p>
     <% titles.forEach(title => { %>
         
         <form method="POST" action="http://localhost:10000/playvideo">
@@ -53,7 +53,7 @@ ul {text-align:center;}
         </form>
         
     <% }); %>
-</ul>
+</p>
 
 <form method="POST" action="http://localhost:10000/">
     <input type="Submit" value="Log Out">
