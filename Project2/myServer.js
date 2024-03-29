@@ -145,6 +145,14 @@ app.post('/likevideo', (req, res) => {
   })()
 });
 
+// Add Feedback
+app.post('/addfeedback', (req, res) => {
+  (async() => {
+    add_feedback(`${req.body.name}`,`${req.body.vid_feedback}`).catch(console.dir)
+    res.redirect(`/playvideo?name=${req.body.name}`);
+  })()
+});
+
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
@@ -340,6 +348,19 @@ async function like_video(name) {
     
     const myquery = { title: name };
     const newvalue = { $inc: {likes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` likes increased`);
+  } finally {}
+}
+
+async function add_feedback(name, data) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $set: {feedback: data}}
 
     const result = await mycollection.updateOne(myquery, newvalue);
     console.log(name + ` likes increased`);
