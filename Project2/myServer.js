@@ -225,7 +225,7 @@ app.post('/searchtitle', (req, res) => {
 // Search based on genre
 app.post('/searchgenre', (req, res) => {
   (async() => {
-    console.log(`User searched video database by title`);
+    console.log(`User searched video database by genre`);
     vid_titles = await search_by_genre(`${req.body.genre}`);
     res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
   })()
@@ -258,7 +258,7 @@ async function send_user(uid, pwd) {
         role: "temp"
     }
     const result = await mycollection.insertOne(doc);
-    console.log(`A document was inserted with the _id: ${result.insertedId}`);
+    console.log(`A user was inserted with the _id: ${result.insertedId}`);
   } finally {}
 }
 
@@ -297,7 +297,7 @@ async function reset_attempts(uid, num) {
     const newvalue = { $set: {attempts: num}}
 
     const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(uid + ` attempts decremented`);
+    console.log(uid + ` attempts reset`);
   } finally {}
 }
 
@@ -315,7 +315,7 @@ async function add_video(url, name, genre_cat) {
         feedback: ''
     }
     const result = await mycollection.insertOne(doc);
-    console.log(`A document was inserted with the _id: ${result.insertedId}`);
+    console.log(`A video was inserted with the _id: ${result.insertedId}`);
   } finally {}
 }
 
