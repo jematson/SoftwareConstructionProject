@@ -23,11 +23,13 @@ iframe {text-align: center;}
     <form method="POST" action="http://localhost:10000/likevideo">
         <input type="Submit" value="Like">
         <input type="hidden" name="name" value= <%= vid_title %> >
+        <input type="hidden" name="current_role" value="viewer">
     </form>
 
     <form method="POST" action="http://localhost:10000/dislikevideo">
         <input type="Submit" value="Dislike">
         <input type="hidden" name="name" value= <%= vid_title %> >
+        <input type="hidden" name="current_role" value="viewer">
     </form>
 
 <% } else if ( role == "editor") { %>
@@ -39,11 +41,12 @@ iframe {text-align: center;}
     <p>Likes: <%= likes %> </p>
     
     <form method="POST" action="http://localhost:10000/addfeedback">
-        <label for="vid_feedback">Add Feedback</label>
+        <p><label for="vid_feedback">Add Feedback</label></p>
         <textarea id="vid_feedback" name="vid_feedback" rows="5" cols="50"></textarea>
         <br>
-        <input type="submit" value="Submit">"
+        <input type="submit" value="Submit">
         <input type="hidden" name="name" value= <%= vid_title %> >
+        <input type="hidden" name="current_role" value="manager">
     </form>
 
 <% } %>

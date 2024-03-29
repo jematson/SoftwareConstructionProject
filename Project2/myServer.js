@@ -143,7 +143,16 @@ app.post('/likevideo', (req, res) => {
   (async() => {
     like_video(`${req.body.name}`).catch(console.dir)
     console.log(`liked video`);
-    res.redirect(`/playvideo?name=${req.body.name}`);
+    link = await retrieve_video(`${req.body.name}`);
+    analytics = await get_likes(`${req.body.name}`);
+    comments = await get_feedback(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`,
+      likes: analytics,
+      manager_feedback: comments
+    });
   })()
 });
 
@@ -151,15 +160,35 @@ app.post('/likevideo', (req, res) => {
 app.post('/addfeedback', (req, res) => {
   (async() => {
     add_feedback(`${req.body.name}`,`${req.body.vid_feedback}`).catch(console.dir)
-    res.redirect(`/playvideo?name=${req.body.name}`);
+    console.log(`video feedback added`);
+    link = await retrieve_video(`${req.body.name}`);
+    analytics = await get_likes(`${req.body.name}`);
+    comments = await get_feedback(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`,
+      likes: analytics,
+      manager_feedback: comments
+    });
   })()
 });
 
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
-    dislike_video(`${seq.body.unlike}`).catch(console.dir)
-    res.redirect(`/playvideo?unlike=${req.body.unlike}`);
+    dislike_video(`${req.body.unlike}`).catch(console.dir)
+    console.log(`disliked video`);
+    link = await retrieve_video(`${req.body.name}`);
+    analytics = await get_likes(`${req.body.name}`);
+    comments = await get_feedback(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`,
+      likes: analytics,
+      manager_feedback: comments
+    });
   })()
 });
 
