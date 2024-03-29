@@ -415,7 +415,11 @@ async function add_feedback(name, data) {
     const mycollection = mydatabase.collection("videos");
     
     const myquery = { title: name };
-    const newvalue = { $set: {feedback: data}}
+    const existingItem = await mycollection.findOne(myquery);
+    const existingFeedback = existingItem.feedback || '';
+    const newFeedback = existingFeedback + '\n' + data;
+
+    const newvalue = [{ $set: {feedback: newFeedback}}]
   
     const result = await mycollection.updateOne(myquery, newvalue);
     console.log(`feedback added to ` + name);
