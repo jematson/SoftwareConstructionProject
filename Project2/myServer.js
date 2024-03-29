@@ -144,14 +144,10 @@ app.post('/likevideo', (req, res) => {
     like_video(`${req.body.name}`).catch(console.dir)
     console.log(`liked video`);
     link = await retrieve_video(`${req.body.name}`);
-    analytics = await get_likes(`${req.body.name}`);
-    comments = await get_feedback(`${req.body.name}`);
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
-      role: `${req.body.current_role}`,
-      likes: analytics,
-      manager_feedback: comments
+      role: `${req.body.current_role}`
     });
   })()
 });
@@ -180,14 +176,10 @@ app.post('/dislikevideo', (req, res) => {
     dislike_video(`${req.body.unlike}`).catch(console.dir)
     console.log(`disliked video`);
     link = await retrieve_video(`${req.body.name}`);
-    analytics = await get_likes(`${req.body.name}`);
-    comments = await get_feedback(`${req.body.name}`);
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
       role: `${req.body.current_role}`,
-      likes: analytics,
-      manager_feedback: comments
     });
   })()
 });
