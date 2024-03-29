@@ -35,7 +35,7 @@ iframe {text-align: center;}
 
 <% } else if ( role == "editor") { %>
     
-    <p>Manager feedback: <%= manager_feedback %> </p>
+    <p>Manager feedback: <br><%- manager_feedback.replace(/\n/g, '<br>') %> </p>
 
 <% } else if ( role == "manager") { %>
     

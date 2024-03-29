@@ -28,7 +28,6 @@ const attemptsDisplay = {
 // Sign Up
 app.post('/signup', (req,res) => {
   console.log(`User clicked sign up`);
-
   (async() => {
     // Search database for the given username
     requested_user = await retrieve_user_data(`${req.body.uid}`, "username");
@@ -40,6 +39,7 @@ app.post('/signup', (req,res) => {
       });
     // If username is free, add new user to database
     } else {
+      // Encrypt password with sha256 hash
       hashed_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
       send_user(`${req.body.uid}`, hashed_pwd).catch(console.dir)
       res.render('pages/page', {
@@ -53,21 +53,22 @@ app.post('/signup', (req,res) => {
 // Sign In
 app.post('/signin', (req, res) => {
   console.log(`User clicked sign in`);
-
   (async() => {
     // Search database for the given username and collect data
     stored_pwd = await retrieve_user_data(`${req.body.uid}`, "password");
     attempts_left= await retrieve_user_data(`${req.body.uid}`, "attempts");
     entered_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
     
-    // If password matches and user not banned, check role and display page
+    // If password matches and user not banned, display website view
     if(entered_pwd == stored_pwd && attempts_left > 0) {
       reset_attempts(`${req.body.uid}`, 5).catch(console.dir)
       role = await retrieve_user_data(`${req.body.uid}`, "role");
-
+    
+      // Retrieve videos to display
       list = await get_vids();
       list.sort();
 
+      // Check user role and display corresponding website view
       if (role == "viewer"){
         res.render('pages/viewer', { titles: list });
       } else if (role == "editor"){
@@ -230,7 +231,6 @@ app.post('/searchgenre', (req, res) => {
   })()
 });
 
-
 const port = 10000;
 app.get('/', (req, res) => {
   res.render('pages/page', {
@@ -264,7 +264,6 @@ async function send_user(uid, pwd) {
 
 async function retrieve_user_data(uid, data) {
   try {
-      console.log("inside run of server")
       const database = client.db("BineData");
       const people = database.collection("users");
       // specify the document field
@@ -331,7 +330,6 @@ async function delete_video(name) {
 
 async function retrieve_video_data(name, data) {
   try {
-      console.log("inside run of server")
       const database = client.db("BineData");
       const people = database.collection("videos");
       // specify the document field
@@ -345,7 +343,6 @@ async function retrieve_video_data(name, data) {
 
 async function get_vids() {
   try {
-      console.log("inside run of server")
       const database = client.db("BineData");
       const vid_collection = database.collection("videos");
       const videos = await vid_collection.find({}, { projection: { title: 1, _id: 0 } }).toArray();
@@ -366,6 +363,19 @@ async function like_video(name) {
   } finally {}
 }
 
+async function dislike_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $inc: {dislikes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` dislikes increased`);
+  } finally {}
+}
+
 async function add_feedback(name, data) {
     try {
     const mydatabase = client.db("BineData");
@@ -383,22 +393,8 @@ async function add_feedback(name, data) {
   } finally {}
 }
 
-async function dislike_video(name) {
-  try {
-    const mydatabase = client.db("BineData");
-    const mycollection = mydatabase.collection("videos");
-    
-    const myquery = { title: name };
-    const newvalue = { $inc: {dislikes: 1}}
-
-    const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(name + ` dislikes increased`);
-  } finally {}
-}
-
 async function search_by_title(name) {
   try {
-    console.log("inside run of server")
     const database = client.db("BineData");
     const vid_collection = database.collection("videos");
     const videos = await vid_collection.find({ title: name }, { projection: { title: 1, _id: 0 } }).toArray();
@@ -408,7 +404,6 @@ async function search_by_title(name) {
 
 async function search_by_genre(name) {
   try {
-    console.log("inside run of server")
     const database = client.db("BineData");
     const vid_collection = database.collection("videos");
     const videos = await vid_collection.find({ genre: name }, { projection: { title: 1, _id: 0 } }).toArray();
