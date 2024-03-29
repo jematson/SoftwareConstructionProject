@@ -148,8 +148,8 @@ app.post('/likevideo', (req, res) => {
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
-    dislike_video(`${seq.body.unlike}`).catch(console.dir)
-    res.redirect(`/playvideo?unlike=${req.body.unlike}`);
+    dislike_video(`${seq.body.name}`).catch(console.dir)
+    res.redirect(`/playvideo?name=${req.body.name}`);
   })()
 });
 
@@ -292,6 +292,7 @@ async function add_video(url, name, genre_cat) {
         title: name,
         link: url,
         likes: 0,
+        dislikes: 0,
         genre: genre_cat,
         feedback: ''
     }
@@ -343,6 +344,19 @@ async function like_video(name) {
 
     const result = await mycollection.updateOne(myquery, newvalue);
     console.log(name + ` likes increased`);
+  } finally {}
+}
+
+async function dislike_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $inc: {dislikes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` dislikes increased`);
   } finally {}
 }
 
