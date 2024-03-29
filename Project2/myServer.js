@@ -212,9 +212,11 @@ app.post('/home', (req, res) => {
 
 // Search based on title
 app.post('/searchtitle', (req, res) => {
-  console.log(`User searched video database by title`);
-  vid_titles = await search_by_title(`${req.body.name}`);
-  res.render('pages/search_results', { titles: vid_titles });
+  (async() => {
+    console.log(`User searched video database by title`);
+    vid_titles = await search_by_title(`${req.body.name}`);
+    res.render('pages/search_results', { titles: vid_titles });
+  })()
 })
 
 const port = 10000;
