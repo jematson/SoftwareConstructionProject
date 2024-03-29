@@ -217,7 +217,7 @@ app.post('/searchtitle', (req, res) => {
     vid_titles = await search_by_title(`${req.body.name}`);
     res.render('pages/search_results', { titles: vid_titles });
   })()
-})
+});
 
 const port = 10000;
 app.get('/', (req, res) => {
