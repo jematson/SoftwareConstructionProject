@@ -40,6 +40,7 @@ iframe {text-align: center;}
 <% } else if ( role == "manager") { %>
     
     <p>Likes: <%= likes %> </p>
+    <p>Disikes: <%= dislikes %> </p>
     
     <form method="POST" action="http://localhost:10000/addfeedback">
         <p><label for="vid_feedback">Add Feedback</label></p>
