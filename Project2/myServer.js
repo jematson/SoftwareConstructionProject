@@ -325,11 +325,7 @@ async function retrieve_video(name) {
       const fieldName = "link";
       // specify an optional query document
       const query = { title: name };
-      // Check to see if the query exists
-      //const distinctValues = await people.find({title: {$exists: true}})
-
       const distinctValues = await people.distinct(fieldName, query);
-      //console.log(distinctValues[0])
       return distinctValues[0];
   } finally {}
 }
