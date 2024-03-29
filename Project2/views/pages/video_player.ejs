@@ -18,10 +18,22 @@ iframe {text-align: center;}
     </iframe>
 </p>
 
-<form method="POST" action="http://localhost:10000/likevideo">
-    <input type="Submit" value="Like">
-    <input type="hidden" name="name" value= <%= vid_title %> >
-</form>
+<% if ( role == "viewer") { %>
+    
+    <form method="POST" action="http://localhost:10000/likevideo">
+        <input type="Submit" value="Like">
+        <input type="hidden" name="name" value= <%= vid_title %> >
+    </form>
+
+<% } else if ( role == "editor") { %>
+    
+    <p>You are on editor view</p>
+
+<% } else if ( role == "manager") { %>
+    
+    <p>Likes: <%= likes %> </p>
+    
+<% } %>
 
 </body>
 </html>
