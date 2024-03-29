@@ -116,13 +116,19 @@ app.post('/addvideo', (req, res) => {
 app.get('/playvideo', (req, res) => {
   (async() => {
     link = await retrieve_video(`${req.query.name}`);
-    analytics = await get_likes(`${req.query.name}`);
-    res.render('pages/video_player', {
-      vid_link: link,
-      vid_title: `${req.query.name}`,
-      role: `${req.query.current_role}`,
-      likes: analytics
-    });
+    analytics_likes = await get_likes(`${req.query.name}`);
+    analytics_dislikes = await get_dislikes(`${req.query.name}`);
+
+    // Check for video actually exists and link is not undefined
+    if (!(link == undefined)){
+      res.render('pages/video_player', {
+        vid_link: link,
+        vid_title: `${req.query.name}`,
+        role: `${req.query.current_role}`,
+        likes: analytics_likes,
+        dislikes: analytics_dislikes
+      });
+    }
   })()
 });
 
@@ -148,8 +154,8 @@ app.post('/likevideo', (req, res) => {
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
-    dislike_video(`${seq.body.unlike}`).catch(console.dir)
-    res.redirect(`/playvideo?unlike=${req.body.unlike}`);
+    dislike_video(`${seq.body.name}`).catch(console.dir)
+    res.redirect(`/playvideo?name=${req.body.name}`);
   })()
 });
 
@@ -292,6 +298,7 @@ async function add_video(url, name, genre_cat) {
         title: name,
         link: url,
         likes: 0,
+        dislikes: 0,
         genre: genre_cat,
         feedback: ''
     }
@@ -304,7 +311,7 @@ async function delete_video(name) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
-    const myquery = { title: name};
+    const myquery = { title: name };
     mycollection.deleteOne(myquery);
   } finally {}
 }
@@ -318,7 +325,11 @@ async function retrieve_video(name) {
       const fieldName = "link";
       // specify an optional query document
       const query = { title: name };
+      // Check to see if the query exists
+      //const distinctValues = await people.find({title: {$exists: true}})
+
       const distinctValues = await people.distinct(fieldName, query);
+      //console.log(distinctValues[0])
       return distinctValues[0];
   } finally {}
 }
@@ -346,6 +357,19 @@ async function like_video(name) {
   } finally {}
 }
 
+async function dislike_video(name) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $inc: {dislikes: 1}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` dislikes increased`);
+  } finally {}
+}
+
 async function get_likes(name) {
   try {
       console.log("inside run of server")
@@ -353,6 +377,20 @@ async function get_likes(name) {
       const people = database.collection("videos");
       // specify the document field
       const fieldName = "likes";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+async function get_dislikes(name) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "dislikes";
       // specify an optional query document
       const query = { title: name };
       const distinctValues = await people.distinct(fieldName, query);
