@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        h1 {text-align:center;}
+        form {text-align: center;}
+        p {text-align: center;}
+    </style>
+
+    <h2>Search results:</h2><br>
+
+    <% titles.forEach(title => { %>
+        
+        <form method="GET" action="http://localhost:10000/playvideo">
+            <input type="hidden" name="name" value="<%= title %>">
+            <input type="hidden" name="current_role" value="viewer">
+            <button type="submit"><%= title %></button>
+        </form>
+        
+    <% }); %>
+
+</html>
