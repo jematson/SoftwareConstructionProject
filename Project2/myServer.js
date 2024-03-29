@@ -223,7 +223,7 @@ app.post('/searchtitle', (req, res) => {
 app.post('/searchgenre', (req, res) => {
   (async() => {
     console.log(`User searched video database by title`);
-    vid_titles = await search_by_genre(`${req.body.name}`);
+    vid_titles = await search_by_genre(`${req.body.genre}`);
     res.render('pages/search_results', { titles: vid_titles, role: `${req.body.current_role }`});
   })()
 });
