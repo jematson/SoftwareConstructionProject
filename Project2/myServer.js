@@ -113,18 +113,18 @@ app.post('/addvideo', (req, res) => {
 });
 
 // Play Video
-app.get('/playvideo', (req, res) => {
+app.post('/playvideo', (req, res) => {
   (async() => {
-    link = await retrieve_video(`${req.query.name}`);
-    analytics_likes = await get_likes(`${req.query.name}`);
-    analytics_dislikes = await get_dislikes(`${req.query.name}`);
-    comments = await get_feedback(`${req.query.name}`);
+    link = await retrieve_video(`${req.body.name}`);
+    analytics_likes = await get_likes(`${req.body.name}`);
+    analytics_dislikes = await get_dislikes(`${req.body.name}`);
+    comments = await get_feedback(`${req.body.name}`);
     // Check for video actually exists and link is not undefined
     if (!(link == undefined)){
       res.render('pages/video_player', {
         vid_link: link,
-        vid_title: `${req.query.name}`,
-        role: `${req.query.current_role}`,
+        vid_title: `${req.body.name}`,
+        role: `${req.body.current_role}`,
         likes: analytics_likes,
         manager_feedback: comments,
         dislikes: analytics_dislikes
@@ -134,9 +134,9 @@ app.get('/playvideo', (req, res) => {
 });
 
 // Delete Video
-app.get('/deletevideo', (req, res) => {
+app.post('/deletevideo', (req, res) => {
   (async() => {
-    delete_video(`${req.query.name}`);
+    delete_video(`${req.body.name}`);
     list = await get_vids();
     list.sort();
     res.render('pages/editor', { titles: list });
@@ -163,13 +163,15 @@ app.post('/addfeedback', (req, res) => {
     add_feedback(`${req.body.name}`,`${req.body.vid_feedback}`).catch(console.dir)
     console.log(`video feedback added`);
     link = await retrieve_video(`${req.body.name}`);
-    analytics = await get_likes(`${req.body.name}`);
+    analytics_likes = await get_likes(`${req.query.name}`);
+    analytics_dislikes = await get_dislikes(`${req.query.name}`);
     comments = await get_feedback(`${req.body.name}`);
     res.render('pages/video_player', {
       vid_link: link,
       vid_title: `${req.body.name}`,
       role: `${req.body.current_role}`,
-      likes: analytics,
+      likes: analytics_likes,
+      dislikes: analytics_dislikes,
       manager_feedback: comments
     });
   })()
@@ -395,9 +397,9 @@ async function add_feedback(name, data) {
     
     const myquery = { title: name };
     const newvalue = { $set: {feedback: data}}
-
+  
     const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(name + ` likes increased`);
+    console.log(`feedback added to ` + name);
   } finally {}
 }
 
