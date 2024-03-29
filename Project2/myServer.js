@@ -326,7 +326,7 @@ async function retrieve_video(name) {
       // specify an optional query document
       const query = { title: name };
       // Check to see if the query exists
-      const distinctValues = database.collection.find({title: {$exists: true}})
+      const distinctValues = await people.find({title: {$exists: true}})
 
       //const distinctValues = await people.distinct(fieldName, query);
       return distinctValues[0];
