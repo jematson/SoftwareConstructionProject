@@ -118,7 +118,7 @@ app.get('/playvideo', (req, res) => {
     link = await retrieve_video(`${req.query.name}`);
     analytics_likes = await get_likes(`${req.query.name}`);
     analytics_dislikes = await get_dislikes(`${req.query.name}`);
-
+    comments = await get_feedback(`${req.query.name}`);
     // Check for video actually exists and link is not undefined
     if (!(link == undefined)){
       res.render('pages/video_player', {
@@ -126,9 +126,10 @@ app.get('/playvideo', (req, res) => {
         vid_title: `${req.query.name}`,
         role: `${req.query.current_role}`,
         likes: analytics_likes,
+        manager_feedback: comments,
         dislikes: analytics_dislikes
       });
-    }
+    } 
   })()
 });
 
@@ -147,15 +148,44 @@ app.post('/likevideo', (req, res) => {
   (async() => {
     like_video(`${req.body.name}`).catch(console.dir)
     console.log(`liked video`);
-    res.redirect(`/playvideo?name=${req.body.name}`);
+    link = await retrieve_video(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`
+    });
+  })()
+});
+
+// Add Feedback
+app.post('/addfeedback', (req, res) => {
+  (async() => {
+    add_feedback(`${req.body.name}`,`${req.body.vid_feedback}`).catch(console.dir)
+    console.log(`video feedback added`);
+    link = await retrieve_video(`${req.body.name}`);
+    analytics = await get_likes(`${req.body.name}`);
+    comments = await get_feedback(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`,
+      likes: analytics,
+      manager_feedback: comments
+    });
   })()
 });
 
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
-    dislike_video(`${seq.body.name}`).catch(console.dir)
-    res.redirect(`/playvideo?name=${req.body.name}`);
+    dislike_video(`${req.body.name}`).catch(console.dir)
+    console.log(`disliked video`);
+    link = await retrieve_video(`${req.body.name}`);
+    res.render('pages/video_player', {
+      vid_link: link,
+      vid_title: `${req.body.name}`,
+      role: `${req.body.current_role}`,
+    });
   })()
 });
 
@@ -168,13 +198,17 @@ app.post('/', (req, res) => {
   });
 });
 
-/*
 // Return to Home from video player
 app.post('/home', (req, res) => {
   console.log(`User returned to home page`);
-  res.render('pages/success');
+  if(`${req.body.current_role}` == "viewer") {
+    res.render('pages/viewer', { titles: list });
+  } else if (`${req.body.current_role}` == "editor") {
+    res.render('pages/editor', { titles: list });
+  } else if (`${req.body.current_role}` == "manager") {
+    res.render('pages/manager', { titles: list });
+  }
 });
-*/
 
 const port = 10000;
 app.get('/', (req, res) => {
@@ -353,6 +387,20 @@ async function like_video(name) {
   } finally {}
 }
 
+
+async function add_feedback(name, data) {
+    try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("videos");
+    
+    const myquery = { title: name };
+    const newvalue = { $set: {feedback: data}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(name + ` likes increased`);
+  } finally {}
+}
+
 async function dislike_video(name) {
   try {
     const mydatabase = client.db("BineData");
@@ -365,6 +413,22 @@ async function dislike_video(name) {
     console.log(name + ` dislikes increased`);
   } finally {}
 }
+
+
+async function get_feedback(name) {
+  try {
+      console.log("inside run of server")
+      const database = client.db("BineData");
+      const people = database.collection("videos");
+      // specify the document field
+      const fieldName = "feedback";
+      // specify an optional query document
+      const query = { title: name };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
 
 async function get_likes(name) {
   try {
