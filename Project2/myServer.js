@@ -193,13 +193,17 @@ app.post('/', (req, res) => {
   });
 });
 
-/*
 // Return to Home from video player
 app.post('/home', (req, res) => {
   console.log(`User returned to home page`);
-  res.render('pages/success');
+  if(`${req.body.current_role}` == "viewer") {
+    res.render('pages/viewer', { titles: list });
+  } else if (`${req.body.current_role}` == "editor") {
+    res.render('pages/editor', { titles: list });
+  } else if (`${req.body.current_role}` == "manager") {
+    res.render('pages/manager', { titles: list });
+  }
 });
-*/
 
 const port = 10000;
 app.get('/', (req, res) => {

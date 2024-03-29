@@ -51,5 +51,10 @@ iframe {text-align: center;}
 
 <% } %>
 
+<form method="POST" action="http://localhost:10000/home">
+    <input type="Submit" value="Back">
+    <input type="hidden" name="current_role" value=<%= role %>>
+</form>
+
 </body>
 </html>
