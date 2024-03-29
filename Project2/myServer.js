@@ -145,6 +145,14 @@ app.post('/likevideo', (req, res) => {
   })()
 });
 
+// Dislike Video
+app.post('/dislikevideo', (req, res) => {
+  (async() => {
+    dislike_video(`${seq.body.unlike}`).catch(console.dir)
+    res.redirect(`/playvideo?unlike=${req.body.unlike}`);
+  })()
+});
+
 // Log Out
 app.post('/', (req, res) => {
   console.log(`User logged out`);

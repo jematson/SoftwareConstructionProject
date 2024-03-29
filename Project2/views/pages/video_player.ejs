@@ -25,6 +25,11 @@ iframe {text-align: center;}
         <input type="hidden" name="name" value= <%= vid_title %> >
     </form>
 
+    <form method="POST" action="http://localhost:10000/dislikevideo">
+        <input type="Submit" value="Dislike">
+        <input type="hidden" name="unlike" value= <%= vid_title %> >
+    </form>
+
 <% } else if ( role == "editor") { %>
     
     <p>You are on editor view</p>
