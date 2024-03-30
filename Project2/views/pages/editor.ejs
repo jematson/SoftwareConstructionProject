@@ -8,10 +8,14 @@ form {text-align: center;}
 h2 {text-align:center;}
 ul {text-align:center;}
 
-.button {
+body {font-family: Georgia, serif;}
+
+.videobutton {
   background-color: #e8e0c8;
   border: none;
+  border-radius: 8px;
   color: black;
+  font-family: Georgia, serif;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
@@ -21,6 +25,33 @@ ul {text-align:center;}
   cursor: pointer;
   width: 250px;
 }
+
+.deletebutton {
+  border: none;
+  border-radius: 0px;
+  font-family: Georgia, serif;
+  text-align: center;
+}
+
+.smolbutton{
+  border: none;
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  text-align: center;
+}
+
+.p1 {
+	font-family: Georgia, serif;
+    font-weight: bold;
+}
+
+.roundtext {
+  border: none;
+  border-radius: 4px;
+  font-family: Georgia, serif;
+  text-align: left;
+}
+
 </style>
 
 <body style="background-color:rgb(179, 109, 136, 1);">
@@ -32,28 +63,28 @@ ul {text-align:center;}
 
 <h2>Add Video</h2>
 <form method="POST" action="http://localhost:10000/addvideo">
-    <label for="txt_title">Video Title:</label>
-    <input type='text' name="name"></input><br>
+    <label class="p1" for="txt_title">Video Title:</label>
+    <input class="roundtext" type='text' name="name"></input><br>
 
-    <label for="txt_genre">Video Genre:</label>
-    <input type='text' name="genre"></input><br>
+    <label class="p1" for="txt_genre">Video Genre:</label>
+    <input class="roundtext" type='text' name="genre"></input><br>
 
-    <label for="txt_url">Video URL:</label>
-    <input type='text' name="url"></input><br>
+    <label class="p1" for="txt_url">Video URL:</label>
+    <input class="roundtext" type='text' name="url"></input><br>
 
-    <input type="Submit" value="Add Video"> <br> <br>
+    <input class="smolbutton" type="Submit" value="Add Video"> <br> <br>
 </form>
 
 <h2>Search Video</h2>
 <form method="POST" action="http://localhost:10000/searchtitle">
     <input type="hidden" name="current_role" value="editor">
-    <label for="txt_title">Search Video Title:</label>
-    <input type='text' name="name"></input>
-    <input type="Submit" value="Search Video">
+    <label class="p1" for="txt_title">Search Video Title:</label>
+    <input class="roundtext" type='text' name="name"></input>
+    <input class="smolbutton" type="Submit" value="Search Video">
     <br>
-    <label for="txt_title">Search Video Genre:</label>
-    <input type='text' name="genre"></input>
-    <input type="Submit" value="Search Genre" formaction="http://localhost:10000/searchgenre"> 
+    <label class="p1" for="txt_title">Search Video Genre:</label>
+    <input class="roundtext" type='text' name="genre"></input>
+    <input class="smolbutton" type="Submit" value="Search Genre" formaction="http://localhost:10000/searchgenre"> 
 </form>
 
 <h2>Videos</h2>
@@ -63,14 +94,14 @@ ul {text-align:center;}
         <form method="POST" action="http://localhost:10000/playvideo">
             <input type="hidden" name="name" value="<%= title %>">
             <input type="hidden" name="current_role" value="editor">
-            <button class="button" type="submit" size="50"><%= title %></button>
-            <button type="submit" formaction="http://localhost:10000/deletevideo">Delete</button>
+            <button class="videobutton" type="submit" size="50"><%= title %></button>
+            <button class="deletebutton" type="submit" formaction="http://localhost:10000/deletevideo">Delete</button>
         </form>
     <% }); %>
 </p>
 
 <form method="POST" action="http://localhost:10000/">
-    <input type="Submit" value="Log Out">
+    <input class="smolbutton" type="Submit" value="Log Out">
 </form>
 
 
