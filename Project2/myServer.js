@@ -4,8 +4,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+// Include for encryting passwords
 const crypto = require('crypto');
 
+// Include for dynamically updated html pages
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -14,16 +16,19 @@ const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
   signUpSuccess: 'Sign up successful!',
-  signInError0: 'Error: user does not exist',
-  signInError1: 'Error: username and password do not match',
-  signInError3: 'Error: What just happened?',
-  signInError4: 'Error: user banned',
+  signInError1: 'Error: user does not exist',
+  signInError2: 'Error: user banned',
+  signInError3: 'Error: username and password do not match',
   signInDelay: 'User role not yet assigned. Wait for admin.'
 }
 const attemptsDisplay = {
   default: ' ',
   attempts: 'Attempts remaining: ',
 }
+
+// ***********************************
+// ********* Website Actions *********
+// ***********************************
 
 // Sign Up
 app.post('/signup', (req,res) => {
@@ -41,7 +46,7 @@ app.post('/signup', (req,res) => {
     } else {
       // Encrypt password with sha256 hash
       hashed_pwd = crypto.createHash('sha256').update(`${req.body.pwd}`).digest('hex');
-      send_user(`${req.body.uid}`, hashed_pwd).catch(console.dir)
+      add_user(`${req.body.uid}`, hashed_pwd).catch(console.dir)
       res.render('pages/page', {
         messageCenter: messageCenter.signUpSuccess,
         attemptsDisplay: attemptsDisplay.default
@@ -81,10 +86,16 @@ app.post('/signin', (req, res) => {
           attemptsDisplay: attemptsDisplay.default
         });
       }
+    // If user does not exists, display error
+    } else if(stored_pwd == undefined) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError1,
+        attemptsDisplay: attemptsDisplay.default
+      });
     // If user has used up all attempts, display ban message
     } else if(attempts_left <= 0) {
       res.render('pages/page', {
-        messageCenter: messageCenter.signInError4,
+        messageCenter: messageCenter.signInError2,
         attemptsDisplay: attemptsDisplay.default
       });
     // If password does not match, display mismatch error
@@ -96,7 +107,7 @@ app.post('/signin', (req, res) => {
         reset_attempts(`${req.body.uid}`, 0).catch(console.dir)
       }
       res.render('pages/page', {
-        messageCenter: messageCenter.signInError1,
+        messageCenter: messageCenter.signInError3,
         attemptsDisplay: attemptsDisplay.attempts + attempts_left
       });
     }
@@ -147,7 +158,7 @@ app.post('/deletevideo', (req, res) => {
 // Like Video
 app.post('/likevideo', (req, res) => {
   (async() => {
-    like_video(`${req.body.name}`).catch(console.dir)
+    increment_field(`${req.body.name}`, "likes").catch(console.dir)
     console.log(`liked video`);
     link = await retrieve_video_data(`${req.body.name}`, "link");
     res.render('pages/video_player', {
@@ -181,7 +192,7 @@ app.post('/addfeedback', (req, res) => {
 // Dislike Video
 app.post('/dislikevideo', (req, res) => {
   (async() => {
-    dislike_video(`${req.body.name}`).catch(console.dir)
+    increment_field(`${req.body.name}`, "dislikes").catch(console.dir)
     console.log(`disliked video`);
     link = await retrieve_video_data(`${req.body.name}`, "link");
     res.render('pages/video_player', {
@@ -242,11 +253,15 @@ app.listen(port, () => {
   console.log(`Server running on port${port}`);
 });
 
-// MongoDB access functions
+// ********************************************
+// ********* MongoDB access functions *********
+// ********************************************
+
 const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
 
-async function send_user(uid, pwd) {
+// Add a given user to the database
+async function add_user(uid, pwd) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("users");
@@ -262,45 +277,7 @@ async function send_user(uid, pwd) {
   } finally {}
 }
 
-async function retrieve_user_data(uid, data) {
-  try {
-      const database = client.db("BineData");
-      const people = database.collection("users");
-      // specify the document field
-      const fieldName = data;
-      // specify an optional query document
-      const query = { username: uid };
-      const distinctValues = await people.distinct(fieldName, query);
-      return distinctValues[0];
-  } finally {}
-}
-
-async function dec_attempts(uid) {
-  try {
-    const mydatabase = client.db("BineData");
-    const mycollection = mydatabase.collection("users");
-    
-    const myquery = { username: uid };
-    const newvalue = { $inc: {attempts: -1}}
-
-    const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(uid + ` attempts decremented`);
-  } finally {}
-}
-
-async function reset_attempts(uid, num) {
-  try {
-    const mydatabase = client.db("BineData");
-    const mycollection = mydatabase.collection("users");
-    
-    const myquery = { username: uid };
-    const newvalue = { $set: {attempts: num}}
-
-    const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(uid + ` attempts reset`);
-  } finally {}
-}
-
+// Add a given video to the database
 async function add_video(url, name, genre_cat) {
   try {
     const mydatabase = client.db("BineData");
@@ -319,6 +296,7 @@ async function add_video(url, name, genre_cat) {
   } finally {}
 }
 
+// Delete a given video from the database
 async function delete_video(name) {
   try {
     const mydatabase = client.db("BineData");
@@ -328,6 +306,21 @@ async function delete_video(name) {
   } finally {}
 }
 
+// Retrieve a given piece of user data from the database
+async function retrieve_user_data(uid, data) {
+  try {
+      const database = client.db("BineData");
+      const people = database.collection("users");
+      // specify the document field
+      const fieldName = data;
+      // specify an optional query document
+      const query = { username: uid };
+      const distinctValues = await people.distinct(fieldName, query);
+      return distinctValues[0];
+  } finally {}
+}
+
+// Retrieve a given piece of video data from the database
 async function retrieve_video_data(name, data) {
   try {
       const database = client.db("BineData");
@@ -341,6 +334,7 @@ async function retrieve_video_data(name, data) {
   } finally {}
 }
 
+// Get a list of all videos in the database
 async function get_vids() {
   try {
       const database = client.db("BineData");
@@ -350,32 +344,49 @@ async function get_vids() {
   } finally {}
 }
 
-async function like_video(name) {
+// Increment a given field
+async function increment_field(name, field) {
   try {
     const mydatabase = client.db("BineData");
     const mycollection = mydatabase.collection("videos");
     
     const myquery = { title: name };
-    const newvalue = { $inc: {likes: 1}}
+    const newvalue = { $inc: {[field]: 1}}
 
     const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(name + ` likes increased`);
+    console.log(name + ` ` + field + ` increased`);
   } finally {}
 }
 
-async function dislike_video(name) {
+// Decrement the attempts field of the given user
+async function dec_attempts(uid) {
   try {
     const mydatabase = client.db("BineData");
-    const mycollection = mydatabase.collection("videos");
+    const mycollection = mydatabase.collection("users");
     
-    const myquery = { title: name };
-    const newvalue = { $inc: {dislikes: 1}}
+    const myquery = { username: uid };
+    const newvalue = { $inc: {attempts: -1}}
 
     const result = await mycollection.updateOne(myquery, newvalue);
-    console.log(name + ` dislikes increased`);
+    console.log(uid + ` attempts decremented`);
   } finally {}
 }
 
+// Reset the attempts field of the given user
+async function reset_attempts(uid, num) {
+  try {
+    const mydatabase = client.db("BineData");
+    const mycollection = mydatabase.collection("users");
+    
+    const myquery = { username: uid };
+    const newvalue = { $set: {attempts: num}}
+
+    const result = await mycollection.updateOne(myquery, newvalue);
+    console.log(uid + ` attempts reset`);
+  } finally {}
+}
+
+// Add feedback to the given video
 async function add_feedback(name, data) {
     try {
     const mydatabase = client.db("BineData");
@@ -393,6 +404,7 @@ async function add_feedback(name, data) {
   } finally {}
 }
 
+// Search for videos with the given title
 async function search_by_title(name) {
   try {
     const database = client.db("BineData");
@@ -402,6 +414,7 @@ async function search_by_title(name) {
   } finally {}
 }
 
+// Search for videos with the given genre tag
 async function search_by_genre(name) {
   try {
     const database = client.db("BineData");
