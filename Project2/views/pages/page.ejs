@@ -5,6 +5,12 @@
 h1 {text-align:center;}
 form {text-align: center;}
 p {text-align: center;}
+.smolbutton{
+  border: none;
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  text-align: center;
+}
 </style>
 
 <body style="background-color:rgb(179, 109, 136, 1);">
@@ -18,8 +24,8 @@ p {text-align: center;}
     <label for="txt_pwd">Password:</label><br>
     <input type='password' pattern="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_]).{8,}" title="Password must be at least 8 characters long and must contain at least one of each of the following: lowercase letter, uppercase letter, special character(!@#$%^&*_), and number." id="txt_pwd" name="pwd"></input><br>
     
-    <input type="Submit" value="Sign in">
-    <input type="Submit" value="Sign up" formaction="http://localhost:10000/signup">
+    <input class="smolbutton" type="Submit" value="Sign in">
+    <input class="smolbutton" type="Submit" value="Sign up" formaction="http://localhost:10000/signup">
 </form>
 
 <p>

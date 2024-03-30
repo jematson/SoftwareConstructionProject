@@ -28,17 +28,6 @@ iframe {text-align: center;}
   text-align: center;
 }
 
-.p1 {
-	font-family: Georgia, serif;
-    font-weight: bold;
-}
-
-.roundtext {
-  border: none;
-  border-radius: 4px;
-  font-family: Georgia, serif;
-  text-align: left;
-}
 
 </style>
 
@@ -57,8 +46,8 @@ iframe {text-align: center;}
     <form method="POST" action="http://localhost:10000/likevideo">
         <input type="hidden" name="name" value= <%= vid_title %> >
         <input type="hidden" name="current_role" value="viewer">
-        <input type="Submit" value="Like">
-        <input type="Submit" value="Dislike" formaction="http://localhost:10000/dislikevideo">
+        <input class="smolbutton" type="Submit" value="Like">
+        <input class="smolbutton" type="Submit" value="Dislike" formaction="http://localhost:10000/dislikevideo">
     </form>
     <br>
 
