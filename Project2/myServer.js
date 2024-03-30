@@ -16,10 +16,9 @@ const messageCenter = {
   default: ' ',
   signUpError: 'Error: user already exists',
   signUpSuccess: 'Sign up successful!',
-  signInError0: 'Error: user does not exist',
-  signInError1: 'Error: username and password do not match',
-  signInError3: 'Error: What just happened?',
-  signInError4: 'Error: user banned',
+  signInError1: 'Error: user does not exist',
+  signInError2: 'Error: user banned',
+  signInError3: 'Error: username and password do not match',
   signInDelay: 'User role not yet assigned. Wait for admin.'
 }
 const attemptsDisplay = {
@@ -87,10 +86,16 @@ app.post('/signin', (req, res) => {
           attemptsDisplay: attemptsDisplay.default
         });
       }
+    // If user does not exists, display error
+    } else if(stored_pwd == undefined) {
+      res.render('pages/page', {
+        messageCenter: messageCenter.signInError1,
+        attemptsDisplay: attemptsDisplay.default
+      });
     // If user has used up all attempts, display ban message
     } else if(attempts_left <= 0) {
       res.render('pages/page', {
-        messageCenter: messageCenter.signInError4,
+        messageCenter: messageCenter.signInError2,
         attemptsDisplay: attemptsDisplay.default
       });
     // If password does not match, display mismatch error
@@ -102,7 +107,7 @@ app.post('/signin', (req, res) => {
         reset_attempts(`${req.body.uid}`, 0).catch(console.dir)
       }
       res.render('pages/page', {
-        messageCenter: messageCenter.signInError1,
+        messageCenter: messageCenter.signInError3,
         attemptsDisplay: attemptsDisplay.attempts + attempts_left
       });
     }
