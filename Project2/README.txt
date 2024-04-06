@@ -1,9 +1,14 @@
 ---Bine installation---
 In order to install and run Bine on your device, you must have MongoDB installed. Go to https://www.mongodb.com/docs/manual/installation/#mongodb-installation-tutorials to do this. It is a free and safe software.
-Next, you must download this GitHub repository to your machine and remove it from the zip drive if it is in one.
-After that, in your OS's terminal, you must navigate to the folder containing this README document from the downloaded file and run the following command:
 
-node myServer.js
+
+Next, do the following:
+
+1) Navigate to the folder containing this README file and run the following commands:
+	1) use BineData
+	2) db.createCollection("users")
+	3) db.createCollection("videos")
+2) On your device's native termina, run the command "node myServer.js" (sans the quotation marks)
 
 This will boot up Bine on your local host. Open the web browser of your choice and navigate to localhost:10000. Here you should be presented with an operational Bine.
 
