@@ -8,7 +8,7 @@ Next, do the following:
 	1) use BineData
 	2) db.createCollection("users")
 	3) db.createCollection("videos")
-2) On your device's native termina, run the command "node myServer.js" (sans the quotation marks)
+2) On your device's native terminal, run the command "node myServer.js" (sans the quotation marks)
 
 This will boot up Bine on your local host. Open the web browser of your choice and navigate to localhost:10000. Here you should be presented with an operational Bine.
 
