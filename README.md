@@ -1,4 +1,5 @@
 ---Bine installation---
+
 In order to install and run Bine on your device, you must have MongoDB installed. Go to https://www.mongodb.com/docs/manual/installation/#mongodb-installation-tutorials to do this. It is a free and safe software.
 
 
