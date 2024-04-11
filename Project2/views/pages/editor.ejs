@@ -64,7 +64,7 @@ body {font-family: Georgia, serif;}
 <h2>Add Video</h2>
 <form method="POST" action="http://localhost:10000/addvideo">
     <label class="p1" for="txt_title">Video Title:</label>
-    <input class="roundtext" type='text' pattern="[^ \x22]+" name="name"></input><br>
+    <input class="roundtext" type='text' pattern="[^ \x22]+" title="Video title can not contain whitespace of any variety" name="name"></input><br>
 
     <label class="p1" for="txt_genre">Video Genre:</label>
     <select name="genre">
